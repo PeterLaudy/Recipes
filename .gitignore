@@ -4,7 +4,7 @@ obj/**
 *.user
 *.log
 appsettings.json
-node_modules/**
-.angular/**
+*/node_modules/**
+*/.angular/**
 .npmrc
 wwwroot/**
