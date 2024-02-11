@@ -1,0 +1,8 @@
+<div class="row no-padding" *ngIf="addresses">
+  <input class="form-control no-padding" placeholder="Enter an email address." list="mailList" #inputEmail [(value)]="value"
+         (change)="changeInput(inputEmail.value, $event)" (keyup)="changeInput(inputEmail.value, $event)">
+  <datalist id="mailList">
+    <option *ngFor="let email of addresses" [(value)]="email.address">{{email.firstName}} {{email.lastName}}</option>
+  </datalist>
+  <br/>
+</div>

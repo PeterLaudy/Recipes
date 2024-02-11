@@ -1,0 +1,31 @@
+<div class="col-sm-12" *ngIf="value">
+  <br/>
+  <div class="row">
+    <app-select-email class="col-xs-8" #email [(value)]="mailAddress"></app-select-email>
+    <div class="col-xs-4">
+      <button class="btn btn-primary" (click)="sendMail()"><span class="glyphicon glyphicon-envelope">&nbsp;</span>Verstuur</button>
+    </div>
+  </div>
+  <h1 class="row">{{value.gerecht.name}}</h1>
+  <div class="row">
+    <br/>
+  </div>
+  <div class="row">
+    <label>Ingrediënten:</label>
+  </div>
+  <div class="row">
+    <p>
+      <span *ngFor="let hoeveelheid of value.hoeveelheden">
+        {{hoeveelheid.aantal}} {{hoeveelheid.Eenheid.name}} {{hoeveelheid.Ingredient.name}}<br/>
+      </span>
+    </p>
+  </div>
+  <div class="row">
+    <label>Bereidingsduur:</label>
+    <p>{{value.gerecht.minutes}} minuten</p>
+  </div>
+  <div class="row">
+    <label>Bereidingswijze:</label>
+    <p class="pre-wrap">{{value.gerecht.description}}</p>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+.idea
+bin/**
+obj/**
+*.user
+*.log
+appsettings.json
+node_modules/**
+.angular/**
+.npmrc
+wwwroot/**

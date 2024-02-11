@@ -1,0 +1,16 @@
+<div class="input-group" *ngIf="value">
+  <div class="input-group-btn">
+    <button class="btn btn-primary no-padding" (click)="deleted.emit(value)">
+      <span class="glyphicon glyphicon-minus-sign"></span>
+    </button>
+  </div>
+  <div class="col-xs-2 no-padding">
+    <input class="form-control no-padding" type="number" min="0" max="1000" placeholder="Aantal?" #qty [(ngModel)]="value.aantal" />
+  </div>
+  <div class="col-xs-3 no-padding">
+    <app-select-eenheid [(value)]="value.Eenheid"></app-select-eenheid>
+  </div>
+  <div class="col-xs-6 no-padding">
+    <app-select-ingredient [(value)]="value.Ingredient"></app-select-ingredient>
+  </div>
+</div>

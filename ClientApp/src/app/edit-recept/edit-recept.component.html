@@ -1,0 +1,38 @@
+<div class="col-xs-12" *ngIf="value">
+  <div class="row">
+    <p>Naam:</p>
+    <input class="form-control" type="text" placeholder="Wat is de naam van het gerecht?" #name [(ngModel)]="value.gerecht.name" />
+    <br/>
+  </div>
+  <div class="row">
+    <app-select-categorie [(value)]="value.gerecht.categorieID"></app-select-categorie>
+  </div>
+  <div class="row">
+    <p>Ingrediënten:</p>
+  </div>
+  <div class="row">
+    <app-edit-hoeveelheden [(value)]="value.hoeveelheden"></app-edit-hoeveelheden>
+  </div>
+  <div class="row">
+    <br/>
+  </div>
+  <div class="row">
+    <p>Bereidingsduur (minuten):</p>
+    <input class="col-xs-2" type="number" min="0" max="1440" placeholder="Minuten" #minutes [(ngModel)]="value.gerecht.minutes" />
+  </div>
+  <div class="row">
+    <br/>
+  </div>
+  <div class="row">
+    <p>Bereidingswijze:</p>
+    <textarea class="col-xs-12" placeholder="Hoe maak je het gerecht?" rows="20" #description [(ngModel)]="value.gerecht.description"></textarea>
+  </div>
+  <div class="row">
+    <br/>
+  </div>
+  <div class="row">
+    <button class="btn btn-default btn-primary" (click)="save()">
+      <span class="glyphicon glyphicon-share">&nbsp;</span>Bewaar
+    </button>
+  </div>
+</div>

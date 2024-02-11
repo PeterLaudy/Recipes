@@ -1,0 +1,7 @@
+<div class="col-xs-4 no-padding" *ngIf="categorieen">
+  <select class="form-control no-padding" placeholder="Categorie?" #selectCategorie [(value)]="value"
+          (change)="changeSelect(selectCategorie.value, $event)">
+    <option *ngFor="let categorie of categorieen" [(value)]="categorie.index">{{categorie.name}}</option>
+  </select>
+  <br/>
+</div>

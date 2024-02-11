@@ -1,0 +1,15 @@
+<div *ngIf="allIngredienten && value">
+  <div *ngIf="readonly">
+    <select class="form-control no-padding" placeholder="Ingredient?" #selectIngredient [(value)]="value.index"
+            (change)="changeSelect(selectIngredient.value, $event)">
+      <option *ngFor="let ingredient of allIngredienten" [(value)]="ingredient.index">{{ingredient.name}}</option>
+    </select>
+  </div>
+  <div *ngIf="!readonly">
+    <input class="form-control no-padding" placeholder="Ingredient?" list="iList" #inputIngredient [(value)]="value.name"
+           (change)="changeInput(inputIngredient.value, $event)" (keyup)="changeInput(inputIngredient.value, $event)">
+    <datalist id="iList">
+      <option *ngFor="let ingredient of allIngredienten" [(value)]="ingredient.name"></option>
+    </datalist>
+  </div>
+</div>

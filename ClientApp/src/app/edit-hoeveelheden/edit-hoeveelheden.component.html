@@ -1,0 +1,12 @@
+<div class="row" cdkDropList (cdkDropListDropped)="drop($event)" *ngIf="value">
+  <div class="col-xs-12" *ngFor="let hoeveelheid of value; let i = index" cdkDrag>
+    <app-edit-hoeveelheid #ui [(value)]="value[i]" (deleted)="deleteHoeveelheid($event)"></app-edit-hoeveelheid>
+  </div>
+</div>
+<div *ngIf="value">
+  <div>
+    <button class="btn btn-primary no-padding" (click)="addHoeveelheid()">
+      <span class="glyphicon glyphicon-plus-sign"></span>
+    </button>
+  </div>
+</div>

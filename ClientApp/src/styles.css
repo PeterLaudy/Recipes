@@ -1,0 +1,31 @@
+/* You can add global styles to this file, and also import other style files */
+h1 {
+    font-size: 32px !important;
+}
+
+textarea {
+    resize: none;
+}
+
+div.no-padding {
+    padding: 0;
+}
+
+input.no-padding, select.no-padding {
+    padding-right: 2px;
+    padding-left: 2px;
+}
+
+button.no-padding {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}

@@ -1,0 +1,48 @@
+<h1>Zoek</h1>
+
+<div *ngIf="Ingredienten">
+  <div class="input-group" *ngFor="let ingredient of Ingredienten; index as i">
+    <div class="input-group-btn">
+      <button class="btn btn-primary no-padding" (click)="deleteIngredient(ingredient)">
+        <span class="glyphicon glyphicon-minus-sign"></span>
+      </button>
+    </div>
+    <div class="col-sm-4 no-padding">
+      <!-- Because ingredient is a variable, we cannot assign [(value)] to it, because
+           when assigning back, the variable no longer exists. -->
+      <app-select-ingredient readonly="true" [(value)]="Ingredienten[i]"></app-select-ingredient>
+    </div>
+  </div>
+  <div>
+    <button class="btn btn-primary no-padding" (click)="addIngredient()">
+      <span class="glyphicon glyphicon-plus-sign"></span>
+    </button>
+  </div>
+  <div>
+    <br/>
+  </div>
+  <div>
+    <button class="btn btn-primary" (click)="findRecept()">
+      <span class="glyphicon glyphicon-search">&nbsp;</span>Zoek
+    </button>
+  </div>
+  <div>
+    <br/>
+  </div>
+  <div *ngIf="Recepten">
+    <h3>Search results:</h3>
+    <p *ngIf="Recepten.length == 0">No results found.</p>
+    <ul *ngIf="Recepten">
+      <li *ngFor="let group of Recepten">
+        <label>{{group.categorie}}</label>
+        <ul>
+          <li *ngFor="let recept of group.list">
+            <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+            <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>
+          </li>
+        </ul>
+        <br/>
+      </li>
+    </ul>
+  </div>
+</div>

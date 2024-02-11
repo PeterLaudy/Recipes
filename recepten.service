@@ -1,0 +1,17 @@
+[Unit]
+Description=Recepten Web Application .NET version
+After=mariadb.service
+
+[Service]
+WorkingDirectory=/var/aspnetcore/recepten
+ExecStart=/var/aspnetcore/recepten/Recepten
+Restart=always
+
+# Restart service after 10 seconds if dotnet service crashes
+RestartSec=10
+SyslogIdentifier=recepten
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production 
+
+[Install]
+WantedBy=multi-user.target

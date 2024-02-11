@@ -1,0 +1,14 @@
+<h1>Recepten.</h1>
+<p>Welkom op deze recepten web-site</p>
+<ul *ngIf="recepten">
+  <li *ngFor="let group of recepten">
+    <label>{{group.categorie}}</label>
+    <ul>
+      <li *ngFor="let recept of group.list">
+        <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+        <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>
+      </li>
+    </ul>
+    <br/>
+  </li>
+</ul>
