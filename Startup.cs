@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -31,7 +32,17 @@ namespace Recepten
 
             services.AddDbContext<Context>(options =>
             {
-                options.UseMySql(Configuration.GetConnectionString("DB"), new MySqlServerVersion(new Version(5, 7, 33)));
+                switch (Configuration.GetValue("UsedDB", "SQLite"))
+                {
+                    case "MySQL":
+                        options.UseMySql(Configuration.GetConnectionString("MySQL"), new MySqlServerVersion(new Version(5, 7, 33)));
+                        break;
+                    case "SQLite":
+                        options.UseSqlite($"Data Source={Configuration.GetConnectionString("SQLite")}");
+                        break;
+                    default:
+                        throw new SettingsPropertyWrongTypeException("Configuration UsedDB has an illegal value or is undefined.");
+                }
             });
 
             // In production, the Angular files will be served from this directory
@@ -39,6 +50,22 @@ namespace Recepten
             {
                 configuration.RootPath = "wwwroot";
             });
+
+            // Required when the server runs behind a reversed proxy.
+            // Allowed origins are defined in the appsettings.json file as an array of strings delimited 
+            var allowedOrigins = Configuration.GetValue("AllowedOrigins", string.Empty);
+            if (!string.IsNullOrEmpty(allowedOrigins))
+            {
+                var origins = allowedOrigins.Split(';');
+                services.AddCors(options =>
+                {
+                    options.AddPolicy(name: "allowedSpecificOrigins",
+                                      policy =>
+                                      {
+                                          policy.WithOrigins(origins);
+                                      });
+                });
+            }
 
             services.AddSingleton<IEmailSender, EmailSender>();
         }
@@ -53,12 +80,27 @@ namespace Recepten
             else
             {
                 app.UseExceptionHandler("/Error");
-                app.UseHsts();
+                // Enabled when using HTTPS redirect
+                if (Configuration.GetValue<bool>("RedirectHTTPS", false))
+                {
+                    app.UseHsts();
+                }
             }
 
-            app.UseHttpsRedirection();
+            // Enabled when using HTTPS redirect
+            if (Configuration.GetValue<bool>("RedirectHTTPS", false))
+            {
+                app.UseHttpsRedirection();
+            }
+
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            // Required when the server runs behind a reversed proxy.
+            if (!string.IsNullOrEmpty(Configuration.GetValue("AllowedOrigins", string.Empty)))
+            {
+                app.UseCors("allowedSpecificOrigins");
+            }
 
             app.UseMvc(routes =>
             {
@@ -80,7 +122,7 @@ namespace Recepten
                 }
             });
 
-            context.SaveChanges();
+            _ = context.SaveChanges();
         }
     }
 }
