@@ -52,7 +52,7 @@
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
       <DistFiles Include=".\recepten.service" />
-      <DistFiles Include=".\*.sh" />
+      <DistFiles Include=".\*.sh" Exclude=".\build.sh" />
       <DistFiles Include=".\gerecht.html" />
       <DistFiles Include=".\wwwroot\**" />
       <DistFiles Include="$(SpaRoot)node_modules\**" Condition="'$(BuildServerSideRenderer)' == 'true'" />
