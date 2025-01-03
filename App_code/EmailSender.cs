@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Gmail.v1;
@@ -11,7 +10,11 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Recepten
 {
-    public class EmailSender : IEmailSender
+    public interface IMyEmailSender {
+        Task SendEmailAsync(string email, string subject, string htmlMessage);
+    }
+
+    public class EmailSender : IMyEmailSender
     {
         private GoogleCredential credential;
 

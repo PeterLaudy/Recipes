@@ -14,6 +14,8 @@ import { EditReceptComponent, ReceptValueAccessor } from './edit-recept/edit-rec
 import { EditComponent } from './edit/edit.component';
 import { ShowReceptComponent } from './show-recept/show-recept.component';
 import { ShowComponent } from './show/show.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 import { CategorieValueAccessor, SelectCategorieComponent } from './select-categorie/select-categorie.component';
 import { SelectEmailComponent, EmailValueAccessor } from './select-email/select-email.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -37,6 +39,8 @@ import { EditHoeveelheidComponent, HoeveelheidValueAccessor } from './edit-hoeve
         EditComponent,
         ShowReceptComponent,
         ShowComponent,
+        LoginComponent,
+        RegisterComponent,
         EenheidValueAccessor,
         IngredientValueAccessor,
         HoeveelhedenValueAccessor,
@@ -54,6 +58,8 @@ import { EditHoeveelheidComponent, HoeveelheidValueAccessor } from './edit-hoeve
             { path: 'add', component: AddComponent },
             { path: 'edit/:index', component: EditComponent },
             { path: 'show/:index', component: ShowComponent },
+            { path: 'login', component: LoginComponent },
+            { path: 'register', component: RegisterComponent }
         ]),
         BrowserAnimationsModule
     ],

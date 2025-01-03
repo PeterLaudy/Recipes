@@ -1,8 +1,14 @@
 using System;
 using System.Configuration;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,12 +21,12 @@ namespace Recepten
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -67,7 +73,48 @@ namespace Recepten
                 });
             }
 
-            services.AddSingleton<IEmailSender, EmailSender>();
+            // The lockout options are the default value, but it shows how to change them.
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
+                options.SignIn.RequireConfirmedEmail = true;
+                options.Lockout = new()
+                {
+                    AllowedForNewUsers = true,
+                    DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5),
+                    MaxFailedAccessAttempts = 5
+                };
+            }).AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.Cookie.Expiration = TimeSpan.FromDays(30);
+                options.SlidingExpiration = true;
+
+            });
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 6;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+            });
+
+            services.AddSingleton<IMyEmailSender, EmailSender>();
+            services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationMiddleware>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,7 +141,9 @@ namespace Recepten
             }
 
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+            app.UseCookiePolicy();
+
+            app.UseRouting();
 
             // Required when the server runs behind a reversed proxy.
             if (!string.IsNullOrEmpty(Configuration.GetValue("AllowedOrigins", string.Empty)))
@@ -102,12 +151,17 @@ namespace Recepten
                 app.UseCors("allowedSpecificOrigins");
             }
 
-            app.UseMvc(routes =>
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
+                    pattern: "{controller}/{action=Index}/{id?}");
             });
+
+            app.UseSpaStaticFiles();
 
             app.UseSpa(spa =>
             {

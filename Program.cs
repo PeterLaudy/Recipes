@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Hosting;
 
 namespace Recepten
 {
@@ -8,7 +10,7 @@ namespace Recepten
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args)
-            .UseUrls("http://*:5001")
+            .UseUrls(["http://localhost:5001/", "http://0.0.0.0:5001/"])
             .Build()
             .Run();
         }

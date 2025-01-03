@@ -4,11 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
 using Recepten.Models.DB;
 using zestien3.carddav;
 
@@ -21,6 +25,7 @@ namespace Recepten.Controllers
         internal Recept(int gerechtIndex, Context context)
         {
             this.Gerecht = context.Gerechten.FirstOrDefault(g => g.GerechtID == gerechtIndex);
+            this.Gerecht.Categorie = context.Categorieen.FirstOrDefault(c => c.CategorieID == this.Gerecht.CategorieID);
             this.Hoeveelheden = new List<Hoeveelheid>();
             Hoeveelheden.AddRange(
                 context.Hoeveelheden
@@ -116,18 +121,21 @@ namespace Recepten.Controllers
     }
 
     [Route("api/[controller]")]
-    public class DataController : Controller
+    public class DataController : BaseController
     {
-        private readonly Context context;
         private EmailSender emailSender;
         private IWebHostEnvironment environment;
         private IConfiguration configuration;
 
         public DataController(
+            ILogger<DataController> logger,
             Context context,
-            IEmailSender emailSender,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IMyEmailSender emailSender,
             IWebHostEnvironment environment,
             IConfiguration configuration)
+            : base(logger, context, userManager, signInManager)
         {
             this.context = context;
             this.emailSender = emailSender as EmailSender;
@@ -135,8 +143,9 @@ namespace Recepten.Controllers
             this.configuration = configuration;
         }
 
+        [Authorize]
         [HttpPost("[action]")]
-        public JsonResult MailRecept([FromBody] MailRecipeData mrd)
+        public async Task<JsonResult> MailRecept([FromBody] MailRecipeData mrd)
         {
             var recept = new Recept(mrd.GerechtIndex, this.context);
 
@@ -146,7 +155,7 @@ namespace Recepten.Controllers
             });
 
             string fileName = Path.Combine(environment.ContentRootPath, "gerecht.html");
-            this.emailSender.SendEmailAsync(
+            await this.emailSender.SendEmailAsync(
                 mrd.MailAddress,
                 "Recept",
                 System.IO.File.ReadAllText(fileName)
@@ -154,9 +163,9 @@ namespace Recepten.Controllers
                 .Replace("<INGREDIENTEN>", ingredienten.ToString())
                 .Replace("<BEREIDINGSDUUR>", recept.Gerecht.Minuten.ToString())
                 .Replace("<BEREIDINGSWIJZE>", recept.Gerecht.Omschrijving)
-            ).Start();
+            );
 
-            return Json("OK");
+            return Json(RESULT_OK);
         }
 
         [HttpGet("[action]")]
@@ -231,6 +240,7 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
+        [Authorize]
         [HttpPost("[action]")]
         public JsonResult AddRecept([FromBody] Recept recept)
         {
@@ -317,10 +327,11 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
+        [Authorize]
         [HttpGet("[action]")]
         public async Task<JsonResult> EmailAddresses()
         {
-            return Json(await new ContactsServer(environment).GetAllEmailAdresses(this.configuration));
+            return Json(await new ContactsServer(environment).GetAllEmailAdressesAsync(this.configuration));
         }
     }
 }

@@ -11,7 +11,7 @@ export class HomeComponent {
     public recepten: GerechtSummaryList[];
 
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-        http.get<GerechtSummaryList[]>(baseUrl + 'api/Data/Recepten').subscribe(result => {
+        http.get<GerechtSummaryList[]>(baseUrl + 'api/Data/Recepten', { withCredentials: true }).subscribe(result => {
             this.recepten = result;
         }, error => console.error(error));
     }

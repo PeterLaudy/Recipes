@@ -10,13 +10,13 @@ import { Categorie, ICategorieDB } from '../data/categorie.model';
 })
 export class SelectCategorieComponent {
 
-    @Input() value: number;
-    @Output() valueChange: EventEmitter<number>
+    @Input() value: Categorie;
+    @Output() valueChange: EventEmitter<Categorie>
 
     categorieen: Categorie[];
 
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-        this.valueChange = new EventEmitter<number>();
+        this.valueChange = new EventEmitter<Categorie>();
 
         http.get<ICategorieDB[]>(baseUrl + 'api/Data/Categorieen').pipe(
             map(data => {
@@ -34,7 +34,19 @@ export class SelectCategorieComponent {
     }
 
     changeSelect(index: number, event): void {
-        this.value = +index;
+        this.value = this.categorieen[index];
+        this.valueChange.emit(this.value);
+    }
+
+    changeInput(naam: string, event): void {
+        this.value = new Categorie(null);
+        this.value.index = 0;
+        this.value.name = naam;
+        this.categorieen.forEach(c => {
+            if (c.name === naam) {
+                this.value = c;
+            }
+        });
         this.valueChange.emit(this.value);
     }
 }

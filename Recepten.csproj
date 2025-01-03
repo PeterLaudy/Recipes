@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="8.0.0-preview.6.23329.11" />
   </ItemGroup>
 
   <Target Name="Copy-Settings" BeforeTargets="PrepareForBuild">

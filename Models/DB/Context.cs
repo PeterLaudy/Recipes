@@ -1,10 +1,12 @@
+using System;
 using System.Linq;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Recepten.Models.DB
 {
-    public class Context : DbContext
+    public class Context : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         ILogger<Context> logger;
 

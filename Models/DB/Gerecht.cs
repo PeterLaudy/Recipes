@@ -19,10 +19,17 @@ namespace Recepten.Models.DB
         [Required]
         public int CategorieID { get; set; }
 
+        [Required]
         public Categorie Categorie { get; set; }
 
         internal void SaveToDB(Context context)
         {
+            if (0 == CategorieID)
+            {
+                this.Categorie.SaveToDB(context);
+                this.CategorieID = this.Categorie.CategorieID;
+            }
+
             if (0 == GerechtID)
             {
                 context.Gerechten.Add(this);

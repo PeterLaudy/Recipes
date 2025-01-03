@@ -39,7 +39,7 @@ namespace zestien3.carddav
             });
         }
 
-        public async Task<List<EmailAddress>> GetAllEmailAdresses(IConfiguration configuration)
+        public async Task<List<EmailAddress>> GetAllEmailAdressesAsync(IConfiguration configuration)
         {
             return await Task<List<EmailAddress>>.Run(() =>
             {

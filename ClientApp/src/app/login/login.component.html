@@ -1,0 +1,14 @@
+<h1>Login</h1>
+
+<div>
+  <p>Username:</p>
+  <input class="form-control" type="text" placeholder="Username" #name [(ngModel)]="userName" />
+  <br/>
+  <p>Password:</p>
+  <input class="form-control" type="password" placeholder="Password" #pswd [(ngModel)]="password" />
+  <br/>
+
+  <button class="btn btn-primary no-padding" (click)="login()">
+    <span class="glyphicon glyphicon-share">&nbsp;</span>Login
+  </button>
+</div>

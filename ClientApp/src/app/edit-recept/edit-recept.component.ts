@@ -22,7 +22,7 @@ export class EditReceptComponent implements AfterViewInit {
     }
 
     save(): void {
-        console.log(`Gerecht: ${this.value.gerecht.name} (${this.value.gerecht.categorieID})`);
+        console.log(`Gerecht: ${this.value.gerecht.name} (${this.value.gerecht.categorie})`);
         this.value.hoeveelheden.forEach(h => {
             console.log(`${h.aantal} ${h.Eenheid.name} ${h.Ingredient.name}`);
             h.eenheidIndex = h.Eenheid.index;
