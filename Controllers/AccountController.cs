@@ -89,6 +89,13 @@ namespace Recepten.Controllers
             return string.Empty;
         }
 
+        [HttpGet]
+        [Route("/api/isauthenticated")]
+        public JsonResult IsAuthenticated()
+        {
+            return Json(this.User.Identity.IsAuthenticated ? RESULT_OK : RESULT_NOK);
+        }
+
         [HttpPost]
         [Route("/api/login")]
         public async Task<JsonResult> Login([FromBody] LoginViewModel model)

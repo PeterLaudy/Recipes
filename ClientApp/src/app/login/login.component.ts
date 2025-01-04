@@ -30,10 +30,10 @@ export class LoginComponent {
         this.http.post<string>(this.baseUrl + 'api/login', loginData)
         .subscribe(result => {
             if (result != 'OK') {
-                console.log(result);
-                alert(result);
+                console.log("Login failed.");
+                alert("Login failed!");
             } else {
-                this.router.navigate(['/']);
+                this.router.navigate(['/add']);
             }
         }, error => console.error(error));
     }

@@ -9,7 +9,7 @@
     </div>
     <div class="col-sm-4 no-padding">
       <!-- Because ingredient is a variable, we cannot assign [(value)] to it, because
-           when assigning back, the variable no longer exists. -->
+           when assigning back, the variable no longer exists. Therefore we use Ingredienten[i] -->
       <app-select-ingredient readonly="true" [(value)]="Ingredienten[i]"></app-select-ingredient>
     </div>
   </div>

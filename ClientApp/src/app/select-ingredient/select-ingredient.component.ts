@@ -31,13 +31,20 @@ export class SelectIngredientComponent {
         )
         .subscribe(result => {
             this.allIngredienten = result;
+            if (this.readonly && (0 == this.value.index)) {
+                this.value.index = this.allIngredienten[0].index;
+                this.value.name = this.allIngredienten[0].name;
+            }
         }, error => console.error(error));
     }
 
     changeSelect(index: number, event): void {
         this.allIngredienten.forEach(i => {
-            if (i.index == +index) {
-                this.value = i;
+            if (i.index == index) {
+                // Don't use value = i !
+                // That will give the caller a reference to the item in the list, causing all kinds of problems.
+                this.value.index = i.index;
+                this.value.name = i.name;
             }
         });
         this.valueChange.emit(this.value);

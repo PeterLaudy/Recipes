@@ -1,8 +1,7 @@
-import { NgModule } from '@angular/core';
+import { inject, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
@@ -15,6 +14,7 @@ import { EditComponent } from './edit/edit.component';
 import { ShowReceptComponent } from './show-recept/show-recept.component';
 import { ShowComponent } from './show/show.component';
 import { LoginComponent } from './login/login.component';
+import { AuthGuard } from './auth-guard/auth-guard';
 import { RegisterComponent } from './register/register.component';
 import { CategorieValueAccessor, SelectCategorieComponent } from './select-categorie/select-categorie.component';
 import { SelectEmailComponent, EmailValueAccessor } from './select-email/select-email.component';
@@ -55,7 +55,7 @@ import { EditHoeveelheidComponent, HoeveelheidValueAccessor } from './edit-hoeve
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
             { path: 'search', component: SearchComponent },
-            { path: 'add', component: AddComponent },
+            { path: 'add', component: AddComponent, canActivate: [AuthGuard] },
             { path: 'edit/:index', component: EditComponent },
             { path: 'show/:index', component: ShowComponent },
             { path: 'login', component: LoginComponent },

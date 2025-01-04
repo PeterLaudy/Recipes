@@ -33,24 +33,22 @@ namespace Recepten
             });
         }
 
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            return new Task(() =>
+            Message msg = new Message()
             {
-                Message msg = new Message() {
-                    Raw = Base64UrlEncode($"To: {email}\r\nSubject: {subject}\r\nContent-Type: text/html;charset=utf-8\r\n\r\n{htmlMessage}")
-                };
+                Raw = Base64UrlEncode($"To: {email}\r\nSubject: {subject}\r\nContent-Type: text/html;charset=utf-8\r\n\r\n{htmlMessage}")
+            };
 
-                try
-                {
-                    mailService.Users.Messages.Send(msg, "me").Execute();
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine(e.Message);
-                    Console.Error.WriteLine(e.StackTrace);
-                }
-            });
+            try
+            {
+                await mailService.Users.Messages.Send(msg, "me").ExecuteAsync();
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.Message);
+                Console.Error.WriteLine(e.StackTrace);
+            }
         }
 
         private static string Base64UrlEncode(string input)
