@@ -14,7 +14,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Recepten.Models.DB;
-using zestien3.carddav;
 
 namespace Recepten.Controllers
 {
@@ -123,7 +122,8 @@ namespace Recepten.Controllers
     [Route("api/[controller]")]
     public class DataController : BaseController
     {
-        private EmailSender emailSender;
+        private IMyEmailSender emailSender;
+        private IContactsServer contactsServer;
         private IWebHostEnvironment environment;
         private IConfiguration configuration;
 
@@ -133,12 +133,14 @@ namespace Recepten.Controllers
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IMyEmailSender emailSender,
+            IContactsServer contactsServer,
             IWebHostEnvironment environment,
             IConfiguration configuration)
             : base(logger, context, userManager, signInManager)
         {
             this.context = context;
-            this.emailSender = emailSender as EmailSender;
+            this.emailSender = emailSender;
+            this.contactsServer = contactsServer;
             this.environment = environment;
             this.configuration = configuration;
         }
@@ -331,7 +333,7 @@ namespace Recepten.Controllers
         [HttpGet("[action]")]
         public async Task<JsonResult> EmailAddresses()
         {
-            return Json(await new ContactsServer(environment).GetAllEmailAdressesAsync(this.configuration));
+            return Json(await contactsServer.GetAllEmailAdressesAsync());
         }
     }
 }

@@ -113,6 +113,7 @@ namespace Recepten
                 options.User.RequireUniqueEmail = true;
             });
 
+            services.AddSingleton<IContactsServer, ContactsServer>();
             services.AddSingleton<IMyEmailSender, EmailSender>();
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationMiddleware>();
         }

@@ -2,7 +2,7 @@
   <br/>
   <div class="row">
     <app-select-email class="col-xs-8" #email [(value)]="mailAddress"></app-select-email>
-    <div class="col-xs-4">
+    <div class="col-xs-4" [hidden]="email.addresses == null">
       <button class="btn btn-primary" (click)="sendMail()"><span class="glyphicon glyphicon-envelope">&nbsp;</span>Verstuur</button>
     </div>
   </div>
