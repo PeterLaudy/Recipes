@@ -1,8 +1,8 @@
-<div class="col-sm-12" *ngIf="value">
+<div class="col-sm-12" [hidden]="(null == email.addresses)" *ngIf="value">
   <br/>
-  <div class="row">
+  <div class="row" [hidden]="(null == email.addresses) || (0 == email.addresses.length)">
     <app-select-email class="col-xs-8" #email [(value)]="mailAddress"></app-select-email>
-    <div class="col-xs-4" [hidden]="email.addresses == null">
+    <div class="col-xs-4">
       <button class="btn btn-primary" (click)="sendMail()"><span class="glyphicon glyphicon-envelope">&nbsp;</span>Verstuur</button>
     </div>
   </div>
