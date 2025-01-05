@@ -1,20 +1,17 @@
 using System;
 using System.Configuration;
-using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using Microsoft.Extensions.Logging;
 using Recepten.Models.DB;
 
 namespace Recepten
@@ -22,10 +19,12 @@ namespace Recepten
     public class Startup
     {
         public IConfiguration Configuration { get; }
+        public ILogger<Startup> Logger { get; }
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            Logger = logger;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -41,9 +40,12 @@ namespace Recepten
                 switch (Configuration.GetValue("UsedDB", "SQLite"))
                 {
                     case "MySQL":
+                        Logger.LogInformation("Using MySQL database.");
                         options.UseMySql(Configuration.GetConnectionString("MySQL"), new MySqlServerVersion(new Version(5, 7, 33)));
                         break;
                     case "SQLite":
+                        Logger.LogInformation("Using SQLite database.");
+                        Logger.LogInformation(Configuration.GetConnectionString("SQLite"));
                         options.UseSqlite($"Data Source={Configuration.GetConnectionString("SQLite")}");
                         break;
                     default:
