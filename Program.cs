@@ -10,7 +10,7 @@ namespace Recepten
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args)
-            .UseUrls(["http://localhost:5001/", "http://0.0.0.0:5001/"])
+            .UseUrls(["http://0.0.0.0:5001/"])
             .Build()
             .Run();
         }
