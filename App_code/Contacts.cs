@@ -39,28 +39,18 @@ namespace Recepten
         {
             interval = TimeSpan.FromMinutes(configuration.GetValue("MailAddressesRefreshMinutes", 0));
 
-            // Check if we have a file with credentials or not.
-            if (configuration.GetValue<bool>("GoogleAuthUseKeyFile", false))
-            {
-                // To add a scope to a service account, visit https://admin.google.com/ac/owl/domainwidedelegation?hl=en_GB
-                // or on the Google Workspace Admin console, select "Security > Access and data control > API controls > Domain-wide delegation" from the menu
-                var credential = GoogleCredential
-                    .FromStream(new FileStream(Path.Combine(environment.ContentRootPath, "google-key-file.json"), FileMode.Open, FileAccess.Read, FileShare.Read))
-                    .CreateScoped(new string[] { PeopleServiceService.Scope.ContactsReadonly })
-                    .CreateWithUser("info@zestien3.nl");
+            // To add a scope to a service account, visit https://admin.google.com/ac/owl/domainwidedelegation?hl=en_GB
+            // or on the Google Workspace Admin console, select "Security > Access and data control > API controls > Domain-wide delegation" from the menu
+            var credential = GoogleCredential
+                .FromStream(new FileStream(Path.Combine(environment.ContentRootPath, "google-key-file.json"), FileMode.Open, FileAccess.Read, FileShare.Read))
+                .CreateScoped(new string[] { PeopleServiceService.Scope.ContactsReadonly })
+                .CreateWithUser("info@zestien3.nl");
 
-                peopleService = new PeopleServiceService(new BaseClientService.Initializer
-                {
-                    HttpClientInitializer = credential,
-                    ApplicationName = "Recepten"
-                });
-            }
-            else
+            peopleService = new PeopleServiceService(new BaseClientService.Initializer
             {
-                // When running on Google Cloud, authentication uses the account under which we are running.
-                // So in this case we do not need a credential file.
-                peopleService = new PeopleServiceService();
-            }
+                HttpClientInitializer = credential,
+                ApplicationName = "Recepten"
+            });
         }
 
         public async Task<List<EmailAddress>> GetAllEmailAdressesAsync()

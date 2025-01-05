@@ -21,30 +21,20 @@ namespace Recepten
     {
         private GmailService mailService;
 
-        public EmailSender(IWebHostEnvironment environment, IConfiguration configuration)
+        public EmailSender(IWebHostEnvironment environment)
         {
-            // Check if we have a file with credentials or not.
-            if (configuration.GetValue<bool>("GoogleAuthUseKeyFile", false))
-            {
-                // To add a scope to a service account, visit https://admin.google.com/ac/owl/domainwidedelegation?hl=en_GB
-                // or on the Google Workspace Admin console, select "Security > Access and data control > API controls > Domain-wide delegation" from the menu
-                var credential = GoogleCredential
-                    .FromStream(new FileStream(Path.Combine(environment.ContentRootPath, "google-key-file.json"), FileMode.Open, FileAccess.Read, FileShare.Read))
-                    .CreateScoped(new string[] { GmailService.Scope.GmailSend })
-                    .CreateWithUser("info@zestien3.nl");
+            // To add a scope to a service account, visit https://admin.google.com/ac/owl/domainwidedelegation?hl=en_GB
+            // or on the Google Workspace Admin console, select "Security > Access and data control > API controls > Domain-wide delegation" from the menu
+            var credential = GoogleCredential
+                .FromStream(new FileStream(Path.Combine(environment.ContentRootPath, "google-key-file.json"), FileMode.Open, FileAccess.Read, FileShare.Read))
+                .CreateScoped(new string[] { GmailService.Scope.GmailSend })
+                .CreateWithUser("info@zestien3.nl");
 
-                mailService = new GmailService(new BaseClientService.Initializer
-                {
-                    HttpClientInitializer = credential,
-                    ApplicationName = "Recepten"
-                });
-            }
-            else
+            mailService = new GmailService(new BaseClientService.Initializer
             {
-                // When running on Google Cloud, authentication uses the account under which we are running.
-                // So in this case we do not need a credential file.
-                mailService = new GmailService();
-            }
+                HttpClientInitializer = credential,
+                ApplicationName = "Recipes"
+            });
         }
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
