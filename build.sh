@@ -13,10 +13,12 @@ if [ ]; then
   dotnet publish -c Release -r linux-arm64 --self-contained=false "-p:PublishSingleFile=true" ./Recepten.sln -v n
   cp ./bin/Release/net8.0/linux-arm64/publish/appsettings.Release.json ./bin/Release/net8.0/linux-arm64/publish/appsettings.json
   rm ./bin/Release/net8.0/linux-arm64/publish/appsettings.*.json
+  rm ./bin/Release/net8.0/linux-arm64/publish/Dockerfile
   echo "Linux arm64"
 else
   dotnet publish -c Release -r linux-x64 --self-contained=false "-p:PublishSingleFile=true" ./Recepten.sln -v n
   cp ./bin/Release/net8.0/linux-x64/publish/appsettings.Release.json ./bin/Release/net8.0/linux-x64/publish/appsettings.json
   rm ./bin/Release/net8.0/linux-x64/publish/appsettings.*.json
+  rm ./bin/Release/net8.0/linux-x64/publish/Dockerfile
   echo "Linux x64"
 fi

@@ -168,6 +168,8 @@ namespace Recepten.Controllers
         /// </summary>
         public async Task<JsonResult> Register([FromBody] RegisterViewModel model)
         {
+            logger.LogInformation($"Registering new user.");
+
             // Sign out anyone who is signed in.
             if (this.User.Identity.IsAuthenticated)
             {
@@ -177,8 +179,11 @@ namespace Recepten.Controllers
 
             if (ModelState.IsValid)
             {
+                logger.LogInformation("Registering new user: model state is valid.");
                 if (0 == await this.userManager.Users.CountAsync())
                 {
+                    logger.LogInformation("Registering new user: there are no users registered yet.");
+
                     // This is the first user being registered. We do not have a token for them, so we create that now.
                     // We set it to the model, so we are sure the email address will be verified. For the first user, tyhis is acceptable.
                     // If the user exists, AddNewUser will return an empty string and the registration will fail.
@@ -189,9 +194,13 @@ namespace Recepten.Controllers
                 var user = await this.userManager.FindByNameAsync(model.UserName);
                 if (null != user)
                 {
+                    logger.LogInformation($"Registering new user: found the user to register => {user.UserName}.");
+
                     // First we check if this is called because we need to confirm the email.
                     if (!user.EmailConfirmed)
                     {
+                        logger.LogInformation($"Registering new user: EMail has not yet been confirmed.");
+
                         var token = Encoding.ASCII.GetString(Convert.FromBase64String(model.Token));
                         var result = await this.userManager.ConfirmEmailAsync(user, token);
                         this.context.SaveChanges();
@@ -199,10 +208,10 @@ namespace Recepten.Controllers
                         {
                             // Email confirmation failed.
                             // Log the reason the confirmation failed, in case the user contacts us.
-                            logger.LogWarning($"EMail for user {user.UserName} failed:");
+                            logger.LogInformation($"EMail for user {user.UserName} failed:");
                             foreach (var error in result.Errors)
                             {
-                                logger.LogWarning($"- {error.Description}");
+                                logger.LogInformation($"- {error.Description}");
                             }
 
                             return Json(RESULT_MAIL_CONFIRMATION_FAILED);
@@ -250,6 +259,7 @@ namespace Recepten.Controllers
                 }
             }
 
+            logger.LogInformation("Registering new user failed because of invalid model state.");
             return Json(RESULT_NOK);
         }
 
