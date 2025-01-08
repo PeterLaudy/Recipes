@@ -1,6 +1,8 @@
 using System;
 using System.Configuration;
 
+using Google.Apis.Auth.OAuth2;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using Recepten.Models.DB;
 
 namespace Recepten
@@ -145,6 +148,12 @@ namespace Recepten
 
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            var pathBase = Configuration.GetValue("PathBase", string.Empty);
+            if (!string.IsNullOrEmpty(pathBase))
+            {
+                app.UsePathBase(pathBase);
+            }
 
             app.UseRouting();
 
