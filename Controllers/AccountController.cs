@@ -91,8 +91,10 @@ namespace Recepten.Controllers
 
         [HttpGet]
         [Route("/api/isauthenticated")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public JsonResult IsAuthenticated()
         {
+            logger.LogInformation(this.User.Identity.Name);
             return Json(this.User.Identity.IsAuthenticated ? RESULT_OK : RESULT_NOK);
         }
 
