@@ -15,7 +15,7 @@ if [ ]; then
     rm ./bin/Release/net8.0/linux-arm64/publish/appsettings.*.json
   else
     echo "Build for Linux x64 failed"
-    return 1
+    exit 1
   fi
   echo "Linux arm64"
 else
@@ -25,7 +25,8 @@ else
     rm ./bin/Release/net8.0/linux-x64/publish/appsettings.*.json
   else
     echo "Build for Linux x64 failed"
-    return 1
+    exit 1
   fi
   echo "Linux x64"
+  exit 0
 fi
