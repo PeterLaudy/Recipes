@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
@@ -78,6 +79,14 @@ namespace Recepten
                 });
             }
 
+            if (!string.IsNullOrEmpty(Configuration.GetValue("PathBase", string.Empty)))
+            {
+                services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    options.ForwardedHeaders = ForwardedHeaders.All;
+                });
+            }
+
             // The lockout options are the default value, but it shows how to change them.
             services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
                 options.SignIn.RequireConfirmedEmail = true;
@@ -126,6 +135,11 @@ namespace Recepten
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Context context)
         {
+            if (!string.IsNullOrEmpty(Configuration.GetValue("PathBase", string.Empty)))
+            {
+                app.UseForwardedHeaders();
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
