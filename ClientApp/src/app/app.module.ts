@@ -15,7 +15,7 @@ import { ShowReceptComponent } from './show-recept/show-recept.component';
 import { ShowComponent } from './show/show.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './auth-guard/auth-guard';
-import { RegisterComponent } from './register/register.component';
+import { RegisterUserComponent } from './register-user/register-user.component';
 import { CategorieValueAccessor, SelectCategorieComponent } from './select-categorie/select-categorie.component';
 import { SelectEmailComponent, EmailValueAccessor } from './select-email/select-email.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -41,7 +41,7 @@ import { AuthenticationInterceptor } from './interceptor';
         ShowReceptComponent,
         ShowComponent,
         LoginComponent,
-        RegisterComponent,
+        RegisterUserComponent,
         EenheidValueAccessor,
         IngredientValueAccessor,
         HoeveelhedenValueAccessor,
@@ -60,7 +60,7 @@ import { AuthenticationInterceptor } from './interceptor';
             { path: 'edit/:index', component: EditComponent },
             { path: 'show/:index', component: ShowComponent },
             { path: 'login', component: LoginComponent },
-            { path: 'register', component: RegisterComponent }
+            { path: 'register-user', component: RegisterUserComponent }
         ]),
         BrowserAnimationsModule
     ],

@@ -4,12 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-register',
-    templateUrl: './register.component.html'
+    selector: 'app-verifyuser',
+    templateUrl: './verifyuser.component.html'
 })
-export class RegisterComponent {
+export class VerifyUserComponent {
 
     token: string = "-";
+    firstName: string = "";
+    lastName: string = "";
     userName: string = "";
     emailAddress: string = "";
     password: string = "";
@@ -20,7 +22,8 @@ export class RegisterComponent {
     register(): void {
         console.log(`Register: ${this.userName}`);
 
-        var registerData: RegisterData = new RegisterData(this.token, this.userName, this.emailAddress, this.password, this.confirmPassword);
+        var registerData: RegisterData =
+            new RegisterData(this.token, this.firstName, this.lastName, this.userName, this.emailAddress, this.password, this.confirmPassword);
 
         this.http.post<string>(this.baseUrl + 'api/register', registerData)
         .subscribe(result => {

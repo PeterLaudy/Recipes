@@ -21,7 +21,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
                         localStorage.removeItem("jwtToken");
                     } else {
                         if (token == "Register First") {
-                            window.location.pathname = "/register;"
+                            window.location.pathname = "/register-user;"
                         } else {
                             localStorage.setItem("jwtToken", token);
                         }

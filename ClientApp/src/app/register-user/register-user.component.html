@@ -1,0 +1,20 @@
+<h1>Register</h1>
+
+<div>
+  <p>First Name:</p>
+  <input class="form-control" type="text" placeholder="First name" #name [(ngModel)]="firstName" />
+  <br/>
+  <p>Last Name:</p>
+  <input class="form-control" type="text" placeholder="Last name" #name [(ngModel)]="lastName" />
+  <br/>
+  <p>Username:</p>
+  <input class="form-control" type="text" placeholder="Username" #name [(ngModel)]="userName" />
+  <br/>
+  <p>Email:</p>
+  <input class="form-control" type="email" placeholder="EMail" #name [(ngModel)]="emailAddress" />
+  <br/>
+
+  <button class="btn btn-primary no-padding" (click)="register()">
+    <span class="glyphicon glyphicon-check">&nbsp;</span>Register
+  </button>
+</div>
