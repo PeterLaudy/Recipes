@@ -11,26 +11,34 @@ using Microsoft.EntityFrameworkCore;
 
 using Recepten.Models.Account;
 using Recepten.Models.DB;
+using System.IO;
 
 namespace Recepten.Controllers
 {
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class AccountController : BaseController
     {
-        private IWebHostEnvironment environment;
-        private EmailSender emailSender;
+        #region Data and Constructor
+
+        private readonly IWebHostEnvironment environment;
+        private readonly IMyEmailSender emailSender;
 
         public AccountController(
             ILogger<AccountController> logger,
             Context context,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            AuthenticationService authenticationManager,
             IWebHostEnvironment environment,
             IMyEmailSender emailSender)
-            : base(logger, context, userManager, signInManager)
+            : base(logger, context, userManager, authenticationManager)
         {
             this.environment = environment;
-            this.emailSender = emailSender as EmailSender;
+            this.emailSender = emailSender;
         }
+
+        #endregion Data and Constructor
+
+        #region Internal helper methods
 
         private string ValidatePasswordStrength(PasswordOptions options, string password)
         {
@@ -67,7 +75,45 @@ namespace Recepten.Controllers
                     $" en minstens {options.RequiredUniqueChars} verschillende karakters bevatten" : "");
         }
 
-        private async Task<string> AddNewUserAsync(string userName, string password, string email)
+        /// <summary>
+        /// Add the authentication token to the request header
+        /// </summary>
+        /// <remarks>
+        /// If token is null or empty, we tell Angular we logged out.
+        /// </remarks>
+        /// <param name="token">The token to add to the header</param>
+        private void AddAuthenticationTokenToRequest(string token = null)
+        {
+            // The middleware can attach the authentication header with value Register First.
+            // This to tell angular we first need to visit the registration page.
+            if (!this.HttpContext.Response.Headers.ContainsKey("Authorization") ||
+                this.HttpContext.Response.Headers["Authorization"] == "Bearer")
+            {
+                // If the token is null, we log out the user.
+                // This will require some help from the angular application,
+                // as we need it to no longer send the JWT Bearer token.
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = "Bearer";
+                }
+                else
+                {
+                    token = $"Bearer {token}";
+                }
+
+                this.HttpContext.Response.Headers["authorization"] = token;
+            }
+        }
+
+        private void LogoutTheCurrectUser()
+        {
+            if (this.User.Identity!.IsAuthenticated)
+            {
+                AddAuthenticationTokenToRequest();
+            }
+        }
+
+        private async Task<ApplicationUser> AddNewUserAsync(string userName, string password, string email)
         {
             if (null == await this.userManager.FindByNameAsync(userName))
             {
@@ -80,22 +126,29 @@ namespace Recepten.Controllers
                 var result = await this.userManager.CreateAsync(newUser, password);
                 if (result.Succeeded)
                 {
-                    newUser = await this.userManager.FindByNameAsync(userName);
-                    var token = await this.userManager.GenerateEmailConfirmationTokenAsync(newUser);
-                    return token;
+                    CheckForFirstRegistration.FirstUserExists = true;
+                    newUser = await this.userManager.FindByNameAsync(userName)!;
+                    if (1 == userManager.Users.Count())
+                    {
+                        await userManager.AddToRolesAsync(newUser!, ["Admin", "Editor"]);
+                    }
+
+                    return newUser;
                 }
             }
 
-            return string.Empty;
+            return null;
         }
+
+        #endregion Internal helper methods
+
+        #region Basic API: Login, Logout and IsAuthenticated
 
         [HttpGet]
         [Route("/api/isauthenticated")]
-        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public JsonResult IsAuthenticated()
         {
-            logger.LogInformation(this.User.Identity.Name);
-            return Json(this.User.Identity.IsAuthenticated ? RESULT_OK : RESULT_NOK);
+            return Json(this.User.Identity!.IsAuthenticated ? RESULT_OK : RESULT_NOK);
         }
 
         [HttpPost]
@@ -104,32 +157,43 @@ namespace Recepten.Controllers
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                logger.LogInformation($"User {this.User.Identity.Name} was signed out because of new login attempt.");
-                await this.signInManager.SignOutAsync();
+                logger.LogInformation($"User {this.User.Identity!.Name} was signed out because of new login attempt.");
+                AddAuthenticationTokenToRequest();
             }
 
             if (this.ModelState.IsValid)
             {
-                // <see cref="Startup.ConfigureServices">for how to set the account lockout options.</see>
-                var signinResult = await this.signInManager.PasswordSignInAsync(model.UserName, model.Password, true, true);
-                if (!signinResult.Succeeded)
+                // Check if we can find the user in our database.
+                var user = this.userManager.Users.FirstOrDefault(u => u.UserName.ToLower() == model.UserName.ToLower());
+                if (null == user)
                 {
-                    if (signinResult.IsLockedOut)
-                    {
-                        return Json(RESULT_ACCOUNT_BLOCKED);
-                    }
-                    else
-                    {
-                        return Json(RESULT_LOGIN_FAILED);
-                    }
+                    return Json(RESULT_NOK);
                 }
 
+                // Check if the password was correct.
+                if (this.userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password) == PasswordVerificationResult.Failed)
+                {
+                    return Json(RESULT_NOK);
+                }
+
+                AddAuthenticationTokenToRequest(await this.authenticationManager.CreateToken("login", userManager, user));
                 this.context.SaveChanges();
+
                 return Json(RESULT_OK);
             }
 
             return Json(RESULT_NOK);
         }
+
+        [HttpGet]
+        [Route("/api/logout")]
+        public JsonResult Logout()
+        {
+            AddAuthenticationTokenToRequest();
+            return Json(this.User.Identity!.IsAuthenticated ? RESULT_NOK : RESULT_OK);
+        }
+
+        #endregion Basic API: Login, Logout and IsAuthenticated
 
         [HttpPost]
         [Route("/api/forgotpassword")]
@@ -137,7 +201,7 @@ namespace Recepten.Controllers
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                await this.signInManager.SignOutAsync();
+                AddAuthenticationTokenToRequest();
             }
 
             var user = await this.userManager.FindByNameAsync(model.UserName);
@@ -146,7 +210,6 @@ namespace Recepten.Controllers
                 logger.LogInformation($"Password reset for user {user.UserName} requested.");
                 // Send the user a link to reset the password.
                 // This is the code used by TimeTracker. We should use the Google mail sender.
-                /*
                 var token = await this.userManager.GeneratePasswordResetTokenAsync(user);
                 string fileName = Path.Combine(this.environment.ContentRootPath, "wachtwoordresetmail.html");
                 await this.emailSender.SendEmailAsync(
@@ -154,10 +217,32 @@ namespace Recepten.Controllers
                     "Password reset",
                     System.IO.File.ReadAllText(fileName).Replace("<TOKEN>", Convert.ToBase64String(Encoding.ASCII.GetBytes(token)))
                 );
-                */
             }
 
             return Json(RESULT_OK);
+        }
+
+        private async Task<JsonResult> RegisterFirstUser(RegisterViewModel model)
+        {
+            logger.LogInformation("Registering new user: there are no users registered yet.");
+
+            // This is the first user being registered. We do not have a token for them, so we create that now.
+            // We will send it to them to verify their mail address.
+            var user = await this.AddNewUserAsync(model.UserName, model.Password, model.EMailAddress);
+            if (null != user)
+            {
+                var token = await this.userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                string fileName = Path.Combine(this.environment.ContentRootPath, "verificationmail.html");
+                string content = System.IO.File.ReadAllText(fileName);
+                content = content
+                    .Replace("<USERNAME>", user.UserName)
+                    .Replace("<TOKEN>", Convert.ToBase64String(Encoding.ASCII.GetBytes(token)));
+                await this.emailSender.SendEmailAsync(user.Email, "Email verificatie voor recepten web-site", content);
+                return Json(RESULT_OK);
+            }
+
+            return Json(RESULT_NOK);
         }
 
         [HttpPost]
@@ -172,25 +257,17 @@ namespace Recepten.Controllers
         {
             logger.LogInformation($"Registering new user.");
 
-            // Sign out anyone who is signed in.
-            if (this.User.Identity.IsAuthenticated)
-            {
-                logger.LogInformation($"User {this.User.Identity.Name} was signed out because of new register attempt.");
-                await this.signInManager.SignOutAsync();
-            }
+            LogoutTheCurrectUser();
 
             if (ModelState.IsValid)
             {
                 logger.LogInformation("Registering new user: model state is valid.");
                 if (0 == await this.userManager.Users.CountAsync())
                 {
-                    logger.LogInformation("Registering new user: there are no users registered yet.");
-
-                    // This is the first user being registered. We do not have a token for them, so we create that now.
-                    // We set it to the model, so we are sure the email address will be verified. For the first user, tyhis is acceptable.
-                    // If the user exists, AddNewUser will return an empty string and the registration will fail.
-                    var token = await this.AddNewUserAsync(model.UserName, model.Password, model.EMailAddress);
-                    model.Token = Convert.ToBase64String(Encoding.ASCII.GetBytes(token));
+                    // If this is the first user we register, we need to send a mail with a link.
+                    // This will only be done for the very first user.
+                    // If the first user is defined in the configuration file, we will never execute this code.
+                    return await RegisterFirstUser(model);
                 }
 
                 var user = await this.userManager.FindByNameAsync(model.UserName);
@@ -203,7 +280,8 @@ namespace Recepten.Controllers
                     {
                         logger.LogInformation($"Registering new user: EMail has not yet been confirmed.");
 
-                        var token = Encoding.ASCII.GetString(Convert.FromBase64String(model.Token));
+                        var validBase64 = Convert.TryFromBase64String(model.Token, new(new byte[model.Token.Length]), out int _);
+                        var token = validBase64 ? Encoding.ASCII.GetString(Convert.FromBase64String(model.Token)) : "";
                         var result = await this.userManager.ConfirmEmailAsync(user, token);
                         this.context.SaveChanges();
                         if (!result.Succeeded)
@@ -230,21 +308,8 @@ namespace Recepten.Controllers
                                     this.userManager.GeneratePasswordResetTokenAsync(user).Result,
                                     model.Password
                                 );
-                                this.context.SaveChanges();
 
-                                var signinResult = await this.signInManager.PasswordSignInAsync(model.UserName, model.Password, true, true);
-                                if (!signinResult.Succeeded)
-                                {
-                                    if (signinResult.IsLockedOut)
-                                    {
-                                        return Json(RESULT_ACCOUNT_BLOCKED);
-                                    }
-                                    else
-                                    {
-                                        return Json(RESULT_LOGIN_FAILED);
-                                    }
-                                }
-
+                                AddAuthenticationTokenToRequest(await this.authenticationManager.CreateToken("login", userManager, user));
                                 this.context.SaveChanges();
                                 return Json(RESULT_OK);
                             }
@@ -270,10 +335,10 @@ namespace Recepten.Controllers
         public async Task<JsonResult> ResetPassword([FromBody] RegisterViewModel model)
         {
             // Sign out anyone who is signed in.
-            if (this.User.Identity.IsAuthenticated)
+            if (this.User.Identity!.IsAuthenticated)
             {
                 logger.LogInformation($"User {this.User.Identity.Name} was signed out because of new reset attempt.");
-                await this.signInManager.SignOutAsync();
+                AddAuthenticationTokenToRequest();
             }
             
             var user = await this.userManager.FindByNameAsync(model.UserName);
@@ -292,20 +357,7 @@ namespace Recepten.Controllers
                         );
                         this.context.SaveChanges();
 
-                        var signinResult = await this.signInManager.PasswordSignInAsync(model.UserName, model.Password, true, true);
-                        if (!signinResult.Succeeded)
-                        {
-                            if (signinResult.IsLockedOut)
-                            {
-                                return Json(RESULT_ACCOUNT_BLOCKED);
-                            }
-                            else
-                            {
-                                return Json(RESULT_LOGIN_FAILED);
-                            }
-                        }
-
-                        this.context.SaveChanges();
+                        AddAuthenticationTokenToRequest(await this.authenticationManager.CreateToken("login", userManager, user));
                         return Json(RESULT_OK);
                     }
                     else

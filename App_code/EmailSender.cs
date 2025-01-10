@@ -21,8 +21,12 @@ namespace Recepten
     {
         private GmailService mailService;
 
-        public EmailSender(IWebHostEnvironment environment)
+        private string baseURL;
+
+        public EmailSender(IConfiguration configuration, IWebHostEnvironment environment)
         {
+            this.baseURL = configuration.GetValue("BaseURL", string.Empty);
+
             // To add a scope to a service account, visit https://admin.google.com/ac/owl/domainwidedelegation?hl=en_GB
             // or on the Google Workspace Admin console, select "Security > Access and data control > API controls > Domain-wide delegation" from the menu
             var credential = GoogleCredential
@@ -41,7 +45,11 @@ namespace Recepten
         {
             Message msg = new Message()
             {
-                Raw = Base64UrlEncode($"To: {email}\r\nSubject: {subject}\r\nContent-Type: text/html;charset=utf-8\r\n\r\n{htmlMessage}")
+                Raw = Base64UrlEncode(
+                    $"To: {email}\r\n" +
+                    $"Subject: {subject}\r\n" +
+                    $"Content-Type: text/html;charset=utf-8\r\n\r\n" +
+                    $"{htmlMessage.Replace("<BASEURL>", this.baseURL)}")
             };
 
             try

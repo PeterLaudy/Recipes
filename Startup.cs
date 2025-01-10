@@ -1,9 +1,9 @@
 using System;
 using System.Configuration;
-
-using Google.Apis.Auth.OAuth2;
-
-using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.IdentityModel.Tokens;
 using Recepten.Models.DB;
 
 namespace Recepten
@@ -34,33 +34,16 @@ namespace Recepten
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // TODO: Check if we can remove this.
             services.AddMvc(options =>
             {
                 options.EnableEndpointRouting = false;
             });
 
-            services.AddDbContext<Context>(options =>
-            {
-                switch (Configuration.GetValue("UsedDB", "SQLite"))
-                {
-                    case "MySQL":
-                        Logger.LogInformation("Using MySQL database.");
-                        options.UseMySql(Configuration.GetConnectionString("MySQL"), new MySqlServerVersion(new Version(5, 7, 33)));
-                        break;
-                    case "SQLite":
-                        Logger.LogInformation("Using SQLite database.");
-                        Logger.LogInformation(Configuration.GetConnectionString("SQLite"));
-                        options.UseSqlite($"Data Source={Configuration.GetConnectionString("SQLite")}");
-                        break;
-                    default:
-                        throw new SettingsPropertyWrongTypeException("Configuration UsedDB has an illegal value or is undefined.");
-                }
-            });
-
             // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
+            services.AddSpaStaticFiles(Configuration =>
             {
-                configuration.RootPath = "wwwroot";
+                Configuration.RootPath = "wwwroot";
             });
 
             // Required when the server runs behind a reversed proxy.
@@ -87,8 +70,27 @@ namespace Recepten
                 });
             }
 
+            services.AddDbContext<Context>(options =>
+            {
+                switch (Configuration.GetValue("UsedDB", "SQLite"))
+                {
+                    case "MySQL":
+                        Logger.LogInformation("Using MySQL database.");
+                        options.UseMySql(Configuration.GetConnectionString("MySQL"), new MySqlServerVersion(new Version(5, 7, 33)));
+                        break;
+                    case "SQLite":
+                        Logger.LogInformation("Using SQLite database.");
+                        Logger.LogInformation(Configuration.GetConnectionString("SQLite"));
+                        options.UseSqlite($"Data Source={Configuration.GetConnectionString("SQLite")}");
+                        break;
+                    default:
+                        throw new SettingsPropertyWrongTypeException("Configuration UsedDB has an illegal value or is undefined.");
+                }
+            });
+
             // The lockout options are the default value, but it shows how to change them.
-            services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+            {
                 options.SignIn.RequireConfirmedEmail = true;
                 options.Lockout = new()
                 {
@@ -96,16 +98,29 @@ namespace Recepten
                     DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5),
                     MaxFailedAccessAttempts = 5
                 };
-            }).AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
+            })
+            .AddTokenProvider("JWT", typeof(AuthenticationService))
+            .AddDefaultTokenProviders()
+            .AddEntityFrameworkStores<Context>();
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            services.AddAuthorization();
+            services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Custom scheme name
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
             {
-                // Cookie settings
-                options.Cookie.HttpOnly = true;
-                options.Cookie.Expiration = TimeSpan.FromDays(30);
-                options.SlidingExpiration = true;
-
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue("JWTKey", string.Empty))),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                    ClockSkew = TimeSpan.Zero
+                };
             });
 
             services.Configure<IdentityOptions>(options =>
@@ -130,12 +145,21 @@ namespace Recepten
             services.AddSingleton<IContactsServer, ContactsServer>();
             services.AddSingleton<IMyEmailSender, EmailSender>();
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationMiddleware>();
+            services.AddSingleton<AuthenticationService>();
+            services.AddScoped<CheckForFirstRegistration>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Context context)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
+            IConfiguration configuration,
+            ILogger<Startup> logger,
+            Context context)
         {
-            if (!string.IsNullOrEmpty(Configuration.GetValue("PathBase", string.Empty)))
+            if (!string.IsNullOrEmpty(configuration.GetValue("PathBase", string.Empty)))
             {
                 app.UseForwardedHeaders();
             }
@@ -148,14 +172,14 @@ namespace Recepten
             {
                 app.UseExceptionHandler("/Error");
                 // Enabled when using HTTPS redirect
-                if (Configuration.GetValue<bool>("RedirectHTTPS", false))
+                if (configuration.GetValue<bool>("RedirectHTTPS", false))
                 {
                     app.UseHsts();
                 }
             }
 
             // Enabled when using HTTPS redirect
-            if (Configuration.GetValue<bool>("RedirectHTTPS", false))
+            if (configuration.GetValue<bool>("RedirectHTTPS", false))
             {
                 app.UseHttpsRedirection();
             }
@@ -163,7 +187,7 @@ namespace Recepten
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            var pathBase = Configuration.GetValue("PathBase", string.Empty);
+            var pathBase = configuration.GetValue("PathBase", string.Empty);
             if (!string.IsNullOrEmpty(pathBase))
             {
                 app.UsePathBase(pathBase);
@@ -172,13 +196,15 @@ namespace Recepten
             app.UseRouting();
 
             // Required when the server runs behind a reversed proxy.
-            if (!string.IsNullOrEmpty(Configuration.GetValue("AllowedOrigins", string.Empty)))
+            if (!string.IsNullOrEmpty(configuration.GetValue("AllowedOrigins", string.Empty)))
             {
                 app.UseCors("allowedSpecificOrigins");
             }
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<CheckForFirstRegistration>();
 
             app.UseEndpoints(endpoints =>
             {
@@ -202,7 +228,53 @@ namespace Recepten
                 }
             });
 
+            this.AddRoleIfNotExists(roleManager, "Admin");
+            this.AddRoleIfNotExists(roleManager, "Editor");
+            this.AddRoleIfNotExists(roleManager, "EMailVerified");
+
+            // Check if we have at least one user.
+            if (0 == userManager.Users.Count())
+            {
+                var firstUser = configuration.GetValue("FirstUser:Name", string.Empty);
+                var eMail = configuration.GetValue("FirstUser:EMail", string.Empty);
+                if (string.IsNullOrEmpty(firstUser) || string.IsNullOrEmpty(eMail))
+                {
+                    CheckForFirstRegistration.FirstUserExists = false;
+                }
+                else
+                {
+                    var newUser = new ApplicationUser()
+                    {
+                        UserName = firstUser,
+                        Email = eMail,
+                    };
+
+                    var result = userManager.CreateAsync(newUser, Guid.NewGuid().ToString()).Result;
+                    if (result.Succeeded)
+                    {
+                        newUser = userManager.FindByNameAsync(firstUser).Result;
+                        userManager.AddToRolesAsync(newUser, ["Admin", "Editor"]).Wait();
+                    }
+                }
+            }
+
             _ = context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Create a user role for this appication if it does not yet exists.
+        /// </summary>
+        /// <remarks>
+        /// No sense in making this async, as the caller method cannot be async.
+        /// </remarks>
+        private void AddRoleIfNotExists(RoleManager<ApplicationRole> roleManager, string roleName)
+        {
+            if (!roleManager.RoleExistsAsync(roleName).Result)
+            {
+                roleManager.CreateAsync(new ApplicationRole() {
+                    Name = roleName,
+                }).Wait();
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 import { inject, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -21,6 +21,7 @@ import { SelectEmailComponent, EmailValueAccessor } from './select-email/select-
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EditHoeveelhedenComponent, HoeveelhedenValueAccessor } from './edit-hoeveelheden/edit-hoeveelheden.component';
 import { EditHoeveelheidComponent, HoeveelheidValueAccessor } from './edit-hoeveelheid/edit-hoeveelheid.component';
+import { AuthenticationInterceptor } from './interceptor';
 
 @NgModule({
     declarations: [
@@ -63,7 +64,9 @@ import { EditHoeveelheidComponent, HoeveelheidValueAccessor } from './edit-hoeve
         ]),
         BrowserAnimationsModule
     ],
-    providers: [],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true }
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

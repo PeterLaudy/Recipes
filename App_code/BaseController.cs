@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,32 +17,26 @@ namespace Recepten
         public static string RESULT_PASSWORD_UNEQUAL = "ERR_PASSWORD_UNEQUAL";
         public static string RESULT_PASSWORD_INVALID = "ERR_PASSWORD_INVALID";
 
-        protected Context context;
-        protected ILogger<BaseController> logger;
-        protected UserManager<ApplicationUser> userManager;
-        protected SignInManager<ApplicationUser> signInManager;
+        protected readonly Context context;
+        protected readonly ILogger<BaseController> logger;
+        protected readonly UserManager<ApplicationUser> userManager;
+        protected readonly AuthenticationService authenticationManager;
 
         protected BaseController(
             ILogger<BaseController> logger,
             Context context,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            AuthenticationService authenticationManager)
         {
             this.context = context;
             this.logger = logger;
             this.userManager = userManager;
-            this.signInManager = signInManager;
+            this.authenticationManager = authenticationManager;
         }
 
-        protected ApplicationUser GetCurrentUser()
+        protected async Task<ApplicationUser> GetCurrentUser()
         {
-            var result = this.userManager.FindByNameAsync(User.Identity.Name).Result;
-            if (null == result)
-            {
-                this.signInManager.SignOutAsync().Wait();
-            }
-
-            return result;
+            return await this.userManager.FindByNameAsync(User.Identity.Name);
         }
     }
 }

@@ -23,8 +23,8 @@ namespace Recepten.Controllers
 
         internal Recept(int gerechtIndex, Context context)
         {
-            this.Gerecht = context.Gerechten.FirstOrDefault(g => g.GerechtID == gerechtIndex);
-            this.Gerecht.Categorie = context.Categorieen.FirstOrDefault(c => c.CategorieID == this.Gerecht.CategorieID);
+            this.Gerecht = context.Gerechten.First(g => g.GerechtID == gerechtIndex);
+            this.Gerecht.Categorie = context.Categorieen.First(c => c.CategorieID == this.Gerecht.CategorieID);
             this.Hoeveelheden = new List<Hoeveelheid>();
             Hoeveelheden.AddRange(
                 context.Hoeveelheden
@@ -70,11 +70,11 @@ namespace Recepten.Controllers
 
             foreach (var hoeveelheid in Hoeveelheden)
             {
-                hoeveelheid.GerechtID = Gerecht.GerechtID;
+                hoeveelheid.GerechtID = Gerecht!.GerechtID;
 
                 if (0 == hoeveelheid.IngredientID)
                 {
-                    Ingredient i = context.Ingredienten.FirstOrDefault(ingredient => ingredient.Naam == hoeveelheid.Ingredient.Naam);
+                    Ingredient i = context!.Ingredienten.FirstOrDefault(ingredient => ingredient.Naam == hoeveelheid.Ingredient.Naam);
                     if (null != i)
                     {
                         hoeveelheid.Ingredient = i;
@@ -84,7 +84,7 @@ namespace Recepten.Controllers
 
                 if (0 == hoeveelheid.EenheidID)
                 {
-                    Eenheid e = context.Eenheden.FirstOrDefault(eenheid => eenheid.Naam == hoeveelheid.Eenheid.Naam);
+                    Eenheid e = context!.Eenheden.FirstOrDefault(eenheid => eenheid.Naam == hoeveelheid.Eenheid.Naam);
                     if (null != e)
                     {
                         hoeveelheid.Eenheid = e;
@@ -97,7 +97,7 @@ namespace Recepten.Controllers
                 hoeveelheid.SaveToDB(context);
             }
 
-            var hoeveelheden2Delete = context.Hoeveelheden.Where(hoeveelheid => hoeveelheid.GerechtID == Gerecht.GerechtID);
+            var hoeveelheden2Delete = context!.Hoeveelheden.Where(hoeveelheid => hoeveelheid.GerechtID == Gerecht.GerechtID);
             foreach (var hoeveelheid in hoeveelheden2Delete)
             {
                 if (!Hoeveelheden.Contains(hoeveelheid))
@@ -115,6 +115,7 @@ namespace Recepten.Controllers
 
     public class MailRecipeData
     {
+        [Required]
         public string MailAddress { get; set; }
         public int GerechtIndex { get; set; }
     }
@@ -122,23 +123,22 @@ namespace Recepten.Controllers
     [Route("api/[controller]")]
     public class DataController : BaseController
     {
-        private IMyEmailSender emailSender;
-        private IContactsServer contactsServer;
-        private IWebHostEnvironment environment;
-        private IConfiguration configuration;
+        private readonly IMyEmailSender emailSender;
+        private readonly IContactsServer contactsServer;
+        private readonly IWebHostEnvironment environment;
+        private readonly IConfiguration configuration;
 
         public DataController(
             ILogger<DataController> logger,
             Context context,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            AuthenticationService authenticationManager,
             IMyEmailSender emailSender,
             IContactsServer contactsServer,
             IWebHostEnvironment environment,
             IConfiguration configuration)
-            : base(logger, context, userManager, signInManager)
+            : base(logger, context, userManager, authenticationManager)
         {
-            this.context = context;
             this.emailSender = emailSender;
             this.contactsServer = contactsServer;
             this.environment = environment;
