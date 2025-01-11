@@ -1,5 +1,5 @@
-import { Component, Inject } from '@angular/core';
-import { VerifyEmailData, IVerifyEmailData } from '../data/verify-email.model';
+import { AfterViewInit, Component, Inject } from '@angular/core';
+import { VerifyEmailData } from '../data/verify-email.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -11,22 +11,34 @@ export class VerifyEmailComponent {
 
     token: string = "-";
     userName: string = "";
+    status: string = "";
 
-    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) { }
+    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) {
+        let t = window.location.search;
+        if (t.indexOf("token=") > 0) {
+            this.token = t.substring(t.indexOf("token=") + 6);
+            console.log(this.token);
+        }
+    }
 
-    ngAfterViewInit(): void {
+    verifyEmail(): void {
         console.log(`Verify email: ${this.userName}`);
 
-        var verifyData: VerifyEmailData =
-            new VerifyEmailData(this.token, this.userName);
+        this.status = "Contacting server...";
 
-        this.http.post<string>(this.baseUrl + 'api/verify-email', verifyData)
-        .subscribe(result => {
-            if (result == 'NOK') {
-                console.log(result);
-                alert("Email verification failed!");
-            } else {
-                this.router.navigate([`/change-password?token=${result}`]);
+        var verifyData: VerifyEmailData =
+            new VerifyEmailData(this.userName, this.token);
+
+        this.http.post(this.baseUrl + 'api/verify-email', verifyData)
+            .subscribe(response => {
+                let result: any = response;
+                if (result.status != 'OK') {
+                    console.log(result.reason);
+                    this.status = result.reason;
+                } else {
+                    this.router.navigate(
+                        ["/change-password"],
+                        { queryParams: { token: result.token } });
             }
         }, error => console.error(error));
     }

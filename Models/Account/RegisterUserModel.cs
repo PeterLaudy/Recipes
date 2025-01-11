@@ -17,6 +17,7 @@ namespace Recepten.Models.Account
         public string UserName { get; set; }
 
         [Required]
+        [DataType(DataType.EmailAddress)]
         public string EMailAddress { get; set; }
     }
 }

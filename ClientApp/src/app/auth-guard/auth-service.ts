@@ -12,14 +12,14 @@ export class AuthService {
     IsAuthenticated(): Promise<boolean> {
         return new Promise<boolean>(resolve => {
             this.http
-                .get<string>(this.baseUrl + 'api/isauthenticated')
+                .get(this.baseUrl + 'api/isauthenticated')
                 .pipe<boolean>(
                     map((data: string) => {
-                        let result = data == "OK";
-                        if (!result) {
+                        let result: any = data;
+                        if (!result.isAuthenticated) {
                             this.router.navigate(["/login"]);
                         }
-                        return result;
+                        return result.isAuthenticated;
                     })
                 ).subscribe(result => {
                     resolve(result);

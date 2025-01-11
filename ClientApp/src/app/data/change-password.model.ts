@@ -1,20 +1,4 @@
-export interface IChangePasswordData {
-    Token: string;
-    UserName: string;
-    Password: string;
-    ConfirmPassword: string;
-}
-
-export class ChangePasswordData implements IChangePasswordData {
-    constructor(token, username, password, confirmpassword: string) {
-        this.Token = token;
-        this.UserName = username;
-        this.Password = password;
-        this.ConfirmPassword = confirmpassword;
+export class ChangePasswordData {
+    constructor(public Token, public UserName, public Password, public ConfirmPassword: string) {
     }
-
-    public Token: string;
-    public UserName: string;
-    public Password: string;
-    public ConfirmPassword: string;
 }

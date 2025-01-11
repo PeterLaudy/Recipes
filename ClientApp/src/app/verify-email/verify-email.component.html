@@ -1,1 +1,15 @@
-<h1>Verifying Email...</h1>
+<h1>Verify Email</h1>
+
+Welcome
+
+<div>
+    <p>Username:</p>
+    <input class="form-control" type="text" placeholder="Username" #name [(ngModel)]="userName" />
+    <br/>
+
+    <p *ngIf="status!=''">{{status}}</p>
+
+    <button *ngIf="status==''" class="btn btn-primary no-padding" (click)="verifyEmail()">
+      <span class="glyphicon glyphicon-check">&nbsp;</span>Verify
+    </button>
+  </div>

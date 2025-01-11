@@ -167,7 +167,7 @@ namespace Recepten.Controllers
                 .Replace("<BEREIDINGSWIJZE>", recept.Gerecht.Omschrijving)
             );
 
-            return Json(RESULT_OK);
+            return ResultOK();
         }
 
         [HttpGet("[action]")]

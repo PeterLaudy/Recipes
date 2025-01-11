@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { RegisterUserData, IRegisterUserData } from '../data/register-user.model';
+import { RegisterUserData } from '../data/register-user.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -22,11 +22,12 @@ export class RegisterUserComponent {
         var registerUserData: RegisterUserData =
             new RegisterUserData(this.firstName, this.lastName, this.userName, this.emailAddress);
 
-        this.http.post<string>(this.baseUrl + 'api/register-user', registerUserData)
-        .subscribe(result => {
-            if (result != 'OK') {
-                console.log(result);
-                alert(result);
+        this.http.post(this.baseUrl + 'api/register-user', registerUserData)
+        .subscribe(response => {
+            var result: any = response;
+            if (result.status != 'OK') {
+                console.log(result.reason);
+                alert(result.reason);
             } else {
                 this.router.navigate(['/']);
             }

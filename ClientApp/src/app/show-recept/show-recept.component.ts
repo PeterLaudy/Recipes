@@ -21,10 +21,11 @@ export class ShowReceptComponent {
 
         var data = { MailAddress: this.mailAddress, GerechtIndex: this.value.gerecht.index };
         this.http.post<string>(this.baseUrl + 'api/Data/MailRecept', data)
-        .subscribe(result => {
-            if (result != 'OK') {
-                console.log(result);
-                alert(result);
+        .subscribe(response => {
+            let result = JSON.parse(response);
+            if (result.status != 'OK') {
+                console.log(result.reason);
+                alert(result.reason);
             } else {
                 this.mailAddress = "";
             }

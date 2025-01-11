@@ -55,13 +55,18 @@ namespace Recepten
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = await GenerateClaims(purpose, userManager, user),
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Expires = DateTime.UtcNow.AddMinutes(3),
                 SigningCredentials = credentials
             };
 
             var handler = new JwtSecurityTokenHandler();
             var token = handler.CreateToken(tokenDescriptor);
             return handler.WriteToken(token);
+        }
+
+        public async Task<string> CreateBase64Token(string purpose, UserManager<ApplicationUser> userManager, ApplicationUser user)
+        {
+            return Convert.ToBase64String(Encoding.ASCII.GetBytes(await CreateToken(purpose, userManager, user)));
         }
 
         public async Task<TokenValidationResult> DecodeTokenAsync(string token)
@@ -84,6 +89,11 @@ namespace Recepten
             }
 
             return null;
+        }
+
+        public async Task<TokenValidationResult> DecodeBase64TokenAsync(string token)
+        {
+            return await DecodeTokenAsync(Encoding.ASCII.GetString(Convert.FromBase64String(token.Replace("%3D", "="))));
         }
 
         #region IUserTwoFactorTokenProvider methods

@@ -1,5 +1,5 @@
 import { Component, ViewChildren, Inject } from '@angular/core';
-import { LoginData, ILoginData } from '../data/login.model';
+import { LoginData } from '../data/login.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -27,12 +27,15 @@ export class LoginComponent {
 
         var loginData: LoginData = new LoginData(this.userName, this.password);
 
-        this.http.post<string>(this.baseUrl + 'api/login', loginData)
-        .subscribe(result => {
-            if (result != 'OK') {
-                console.log("Login failed.");
-                alert("Login failed!");
+        this.http.post(this.baseUrl + 'api/login', loginData)
+        .subscribe(response => {
+            let result: any = response;
+            if (result.status != 'OK') {
+                console.log(result.reason);
+                alert(result.reason);
             } else {
+                // TODO: Check if we have the editor role, before sending us to this page.
+                // For now it is OK, as every user has this role.
                 this.router.navigate(['/add']);
             }
         }, error => console.error(error));
