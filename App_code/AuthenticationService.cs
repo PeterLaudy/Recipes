@@ -17,6 +17,7 @@ namespace Recepten
     public class AuthenticationService : IUserTwoFactorTokenProvider<ApplicationUser>
     {
         private ILogger<AuthenticationService> logger;
+        private IConfiguration configuration;
         private SymmetricSecurityKey securityKey;
 
         public AuthenticationService(
@@ -24,7 +25,8 @@ namespace Recepten
             IConfiguration configuration)
         {
             this.logger = logger;
-            securityKey = new(Encoding.ASCII.GetBytes(configuration.GetValue("JWTKey", string.Empty)));
+            this.configuration = configuration;
+            securityKey = new(Encoding.ASCII.GetBytes(configuration.GetValue("JWT:JWTKey", string.Empty)));
         }
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace Recepten
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = await GenerateClaims(purpose, userManager, user),
-                Expires = DateTime.UtcNow.AddMinutes(3),
+                Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>($"JWT:TokenLifespan:{purpose}", 5)),
                 SigningCredentials = credentials
             };
 

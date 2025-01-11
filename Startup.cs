@@ -115,7 +115,7 @@ namespace Recepten
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue("JWTKey", string.Empty))),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue("JWT:JWTKey", string.Empty))),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
@@ -258,6 +258,7 @@ namespace Recepten
                     {
                         newUser = userManager.FindByNameAsync(userName).Result;
                         userManager.AddToRolesAsync(newUser, [ApplicationRole.AdminRole, ApplicationRole.EditorRole]).Wait();
+                        context.Update(newUser);
                     }
                 }
             }

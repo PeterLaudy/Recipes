@@ -20,6 +20,7 @@ namespace Recepten.Controllers
     {
         #region Data and Constructor
 
+        private const string PURPOSE_LOGIN = "login";
         private const string PURPOSE_VERIFY_EMAIL = "verify email";
         private const string PURPOSE_CHANGE_PASSWORD = "change password";
 
@@ -150,13 +151,19 @@ namespace Recepten.Controllers
                     return ResultNOK("Incorrect username or password");
                 }
 
+                if (!user.EmailConfirmed)
+                {
+                    await SendEmailVerificationMail(user);
+                    return ResultNOK("Bevestig eerst je email adres via de link die je in je mailbox vindt.");
+                }
+
                 // Check if the password was correct.
                 if (this.userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password) == PasswordVerificationResult.Failed)
                 {
                     return ResultNOK("Incorrect username or password");
                 }
 
-                AddAuthenticationTokenToRequest($"Bearer {await this.authenticationManager.CreateToken("login", userManager, user)}");
+                AddAuthenticationTokenToRequest($"Bearer {await this.authenticationManager.CreateToken(PURPOSE_LOGIN, userManager, user)}");
                 this.context.SaveChanges();
 
                 return ResultOK();
@@ -387,7 +394,7 @@ namespace Recepten.Controllers
                                 this.context.Update(user);
                                 this.context.SaveChanges();
 
-                                AddAuthenticationTokenToRequest($"Bearer {await this.authenticationManager.CreateToken("login", userManager, user)}");
+                                AddAuthenticationTokenToRequest($"Bearer {await this.authenticationManager.CreateToken(PURPOSE_LOGIN, userManager, user)}");
                                 return ResultOK();
                             }
 
