@@ -2,13 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Recepten.Models.Account
 {
-    public class RegisterViewModel
+    public class RegisterUserModel
     {
         // Parameterless constructor needed for the framework.
-        public RegisterViewModel() { }
-
-        [Required]
-        public string Token { get; set; }
+        public RegisterUserModel() { }
 
         [Required]
         public string FirstName { get; set; }
@@ -21,12 +18,5 @@ namespace Recepten.Models.Account
 
         [Required]
         public string EMailAddress { get; set; }
-
-        [Required, DataType(DataType.Password)] 
-        public string Password { get; set; }
-        
-        [Required]
-        [DataType(DataType.Password), Compare(nameof(Password))] 
-        public string ConfirmPassword { get; set; }
     }
 }

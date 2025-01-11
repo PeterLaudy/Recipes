@@ -1,9 +1,9 @@
-export interface IRegisterData {
+export interface IVerifyEmailData {
     Token: string;
     UserName: string;
 }
 
-export class RegisterData implements IRegisterData {
+export class VerifyEmailData implements IVerifyEmailData {
     constructor(token, username: string) {
         this.Token = token;
         this.UserName = username;

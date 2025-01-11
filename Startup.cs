@@ -228,9 +228,9 @@ namespace Recepten
                 }
             });
 
-            this.AddRoleIfNotExists(roleManager, "Admin");
-            this.AddRoleIfNotExists(roleManager, "Editor");
-            this.AddRoleIfNotExists(roleManager, "EMailVerified");
+            this.AddRoleIfNotExists(roleManager, ApplicationRole.AdminRole);
+            this.AddRoleIfNotExists(roleManager, ApplicationRole.EditorRole);
+            this.AddRoleIfNotExists(roleManager, ApplicationRole.EmailVerifiedRole);
 
             // Check if we have at least one user.
             if (0 == userManager.Users.Count())
@@ -253,7 +253,7 @@ namespace Recepten
                     if (result.Succeeded)
                     {
                         newUser = userManager.FindByNameAsync(firstUser).Result;
-                        userManager.AddToRolesAsync(newUser, ["Admin", "Editor"]).Wait();
+                        userManager.AddToRolesAsync(newUser, [ApplicationRole.AdminRole, ApplicationRole.EditorRole]).Wait();
                     }
                 }
             }

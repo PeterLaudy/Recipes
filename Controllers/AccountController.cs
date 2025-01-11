@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Recepten.Models.Account;
 using Recepten.Models.DB;
 using System.IO;
+using System.Security.Claims;
 
 namespace Recepten.Controllers
 {
@@ -107,37 +108,10 @@ namespace Recepten.Controllers
 
         private void LogoutTheCurrectUser()
         {
-            if (this.User.Identity!.IsAuthenticated)
+            if (this.User.Identity.IsAuthenticated)
             {
                 AddAuthenticationTokenToRequest();
             }
-        }
-
-        private async Task<ApplicationUser> AddNewUserAsync(string userName, string password, string email)
-        {
-            if (null == await this.userManager.FindByNameAsync(userName))
-            {
-                var newUser = new ApplicationUser()
-                {
-                    UserName = userName,
-                    Email = email,
-                };
-
-                var result = await this.userManager.CreateAsync(newUser, password);
-                if (result.Succeeded)
-                {
-                    CheckForFirstRegistration.FirstUserExists = true;
-                    newUser = await this.userManager.FindByNameAsync(userName)!;
-                    if (1 == userManager.Users.Count())
-                    {
-                        await userManager.AddToRolesAsync(newUser!, ["Admin", "Editor"]);
-                    }
-
-                    return newUser;
-                }
-            }
-
-            return null;
         }
 
         #endregion Internal helper methods
@@ -148,16 +122,16 @@ namespace Recepten.Controllers
         [Route("/api/isauthenticated")]
         public JsonResult IsAuthenticated()
         {
-            return Json(this.User.Identity!.IsAuthenticated ? RESULT_OK : RESULT_NOK);
+            return Json(this.User.Identity.IsAuthenticated ? RESULT_OK : RESULT_NOK);
         }
 
         [HttpPost]
         [Route("/api/login")]
-        public async Task<JsonResult> Login([FromBody] LoginViewModel model)
+        public async Task<JsonResult> Login([FromBody] LoginModel model)
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                logger.LogInformation($"User {this.User.Identity!.Name} was signed out because of new login attempt.");
+                logger.LogInformation($"User {this.User.Identity.Name} was signed out because of new login attempt.");
                 AddAuthenticationTokenToRequest();
             }
 
@@ -190,28 +164,169 @@ namespace Recepten.Controllers
         public JsonResult Logout()
         {
             AddAuthenticationTokenToRequest();
-            return Json(this.User.Identity!.IsAuthenticated ? RESULT_NOK : RESULT_OK);
+            return Json(this.User.Identity.IsAuthenticated ? RESULT_NOK : RESULT_OK);
         }
 
         #endregion Basic API: Login, Logout and IsAuthenticated
 
+        #region All code for registering new user and verifying their email address
+
+        /// <summary>
+        /// Create a new user and add it to the databse.
+        /// </summary>
+        /// <remarks>
+        /// If this is the first user which is added, it will get superpower privileges.
+        /// </remarks>
+        /// <param name="model">The info about this user as received from the frontend.</param>
+        /// <returns>The newly generated user or null if the call failed.</returns>
+        private async Task<ApplicationUser> AddNewUserAsync(RegisterUserModel model)
+        {
+            if (null == await this.userManager.FindByNameAsync(model.UserName))
+            {
+                var newUser = new ApplicationUser()
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    UserName = model.UserName,
+                    Email = model.EMailAddress
+                };
+
+                var result = await this.userManager.CreateAsync(newUser, Guid.NewGuid().ToString());
+                if (result.Succeeded)
+                {
+                    CheckForFirstRegistration.FirstUserExists = true;
+                    newUser = await this.userManager.FindByNameAsync(model.UserName);
+                    if (1 == userManager.Users.Count())
+                    {
+                        await userManager.AddToRolesAsync(newUser, [ApplicationRole.AdminRole, ApplicationRole.EditorRole]);
+                    }
+
+                    return newUser;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Send the user an email to verify their email address.
+        /// </summary>
+        /// <param name="user">The user to send the mail to.</param>
+        private async Task SendEmailVerificationMail(ApplicationUser user)
+        {
+            var token = await this.userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            string fileName = Path.Combine(this.environment.ContentRootPath, "verificationmail.html");
+            string content = System.IO.File.ReadAllText(fileName);
+            content = content
+                .Replace("<USERNAME>", user.UserName)
+                .Replace("<TOKEN>", Convert.ToBase64String(Encoding.ASCII.GetBytes(token)));
+            await this.emailSender.SendEmailAsync(user.Email, "Email verificatie voor recepten web-site", content);
+        }
+
         [HttpPost]
-        [Route("/api/forgotpassword")]
-        public async Task<IActionResult> ForgotPassword([FromBody] LoginViewModel model)
+        [Route("/api/register-user")]
+        /// <summary>
+        /// We add a new user to the database. This can only be done by somebody with an admin role.
+        /// Unless we have no users at all, then the first user to sign up will become admin.
+        /// </summary>
+        public async Task<JsonResult> RegisterUser([FromBody] RegisterUserModel model)
+        {
+            logger.LogInformation($"Registering new user.");
+
+            // The first user exists, so we need to authenticate the current user
+            // and make sure they have an admin role. 
+            if (CheckForFirstRegistration.FirstUserExists)
+            {
+                // If no user is authenticated, we exit.
+                if (!this.User.Identity.IsAuthenticated)
+                    return Json(RESULT_NOK);
+                var user = await this.userManager.FindByNameAsync(this.User.Identity.Name);
+                // If no user is found, we exit. Probably impossible with an authenticaed user.
+                if (null == user)
+                    return Json(RESULT_NOK);
+                // If the user is not an admin, we exit.
+                if (!(await this.userManager.GetRolesAsync(user)).Contains(ApplicationRole.AdminRole))
+                    return Json(RESULT_NOK);
+            }
+
+            if (ModelState.IsValid)
+            {
+                // We will send it to them to verify their mail address.
+                var user = await this.AddNewUserAsync(model);
+                if (null != user)
+                {
+                    await SendEmailVerificationMail(user);
+                    return Json(RESULT_OK);
+                }
+            }
+
+            return Json(RESULT_NOK);
+        }
+
+        [HttpGet]
+        [Route("/api/verify-email")]
+        /// <summary>
+        /// The user clicked the email verification link they received.
+        /// The token in the link is send to us by the frontend.
+        /// </summary>
+        public async Task<JsonResult> VerifyEmail(string token)
+        {
+            logger.LogInformation("Verifying email address.");
+
+            var jsonToken = await authenticationManager.DecodeTokenAsync(token);
+            if (jsonToken.IsValid)
+            {
+                // The claims in the token will provide us the username.
+                var user = await this.userManager.FindByNameAsync(jsonToken.Claims[ClaimTypes.Name] as string);
+                if (null != user)
+                {
+                    // Check if the token is OK.
+                    if ((await this.userManager.ConfirmEmailAsync(user, token)).Succeeded)
+                    {
+                        // We need to add the EmailVerified role for this user.
+                        var confirmResult = await userManager.AddToRoleAsync(user, ApplicationRole.EmailVerifiedRole);
+                        if (confirmResult.Succeeded)
+                        {
+                            // Now we need to reset the password of the user and send them the token.
+                            var pswdToken = await this.userManager.GeneratePasswordResetTokenAsync(user);
+                            // The token noe goes to the frontend, where the user will add the password (2x)
+                            // and send that back again. Then we can follow the normal route.
+                            return Json(pswdToken);
+                        }
+                        else
+                        {
+                            // TODO: An admin has to send a new link to the user, as this one did not work.
+                            // No need to do enything here. We need a kind of admin page where we can do these things.
+                        }
+                    }
+                }
+            }
+
+            return Json(RESULT_NOK);
+        }
+
+        #endregion All code for registering new user and verifying their emaiol address
+
+        #region All code for changing the password
+
+        [HttpPost]
+        [Route("/api/request-password-change")]
+        public async Task<IActionResult> RequestPasswordChange(string userName)
         {
             if (this.User.Identity.IsAuthenticated)
             {
                 AddAuthenticationTokenToRequest();
             }
 
-            var user = await this.userManager.FindByNameAsync(model.UserName);
+            var user = await this.userManager.FindByNameAsync(userName);
             if (null != user)
             {
-                logger.LogInformation($"Password reset for user {user.UserName} requested.");
+                logger.LogInformation($"Password reset for user {userName} requested.");
                 // Send the user a link to reset the password.
                 // This is the code used by TimeTracker. We should use the Google mail sender.
                 var token = await this.userManager.GeneratePasswordResetTokenAsync(user);
-                string fileName = Path.Combine(this.environment.ContentRootPath, "wachtwoordresetmail.html");
+                string fileName = Path.Combine(this.environment.ContentRootPath, "passwordresetmail.html");
                 await this.emailSender.SendEmailAsync(
                     user.Email,
                     "Password reset",
@@ -219,89 +334,33 @@ namespace Recepten.Controllers
                 );
             }
 
+            // Always send OK, even if no mail has been send.
+            // We don't want people to try which usernames are in use.
             return Json(RESULT_OK);
         }
 
-        private async Task<JsonResult> RegisterFirstUser(RegisterViewModel model)
-        {
-            logger.LogInformation("Registering new user: there are no users registered yet.");
-
-            // This is the first user being registered. We do not have a token for them, so we create that now.
-            // We will send it to them to verify their mail address.
-            var user = await this.AddNewUserAsync(model.UserName, model.Password, model.EMailAddress);
-            if (null != user)
-            {
-                var token = await this.userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                string fileName = Path.Combine(this.environment.ContentRootPath, "verificationmail.html");
-                string content = System.IO.File.ReadAllText(fileName);
-                content = content
-                    .Replace("<USERNAME>", user.UserName)
-                    .Replace("<TOKEN>", Convert.ToBase64String(Encoding.ASCII.GetBytes(token)));
-                await this.emailSender.SendEmailAsync(user.Email, "Email verificatie voor recepten web-site", content);
-                return Json(RESULT_OK);
-            }
-
-            return Json(RESULT_NOK);
-        }
-
         [HttpPost]
-        [Route("/api/register")]
-        /// <summary>
-        /// Link that the user has received by email to sign up for an account.
-        /// This should confirm the email address and allow for setting a password.
-        /// The email address is confirmed, because this linked is clicked.
-        /// We should give an opportunity to set the password.
-        /// </summary>
-        public async Task<JsonResult> Register([FromBody] RegisterViewModel model)
+        [Route("/api/change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
         {
-            logger.LogInformation($"Registering new user.");
-
-            LogoutTheCurrectUser();
+            if (this.User.Identity.IsAuthenticated)
+            {
+                AddAuthenticationTokenToRequest();
+            }
 
             if (ModelState.IsValid)
             {
-                logger.LogInformation("Registering new user: model state is valid.");
-                if (0 == await this.userManager.Users.CountAsync())
+                logger.LogInformation("Changing password.");
+                var jsonToken = await this.authenticationManager.DecodeTokenAsync(model.Token);
+                if (jsonToken.IsValid)
                 {
-                    // If this is the first user we register, we need to send a mail with a link.
-                    // This will only be done for the very first user.
-                    // If the first user is defined in the configuration file, we will never execute this code.
-                    return await RegisterFirstUser(model);
-                }
-
-                var user = await this.userManager.FindByNameAsync(model.UserName);
-                if (null != user)
-                {
-                    logger.LogInformation($"Registering new user: found the user to register => {user.UserName}.");
-
-                    // First we check if this is called because we need to confirm the email.
-                    if (!user.EmailConfirmed)
+                    if ((jsonToken.Claims[ClaimTypes.Name] as string) == model.UserName)
                     {
-                        logger.LogInformation($"Registering new user: EMail has not yet been confirmed.");
-
-                        var validBase64 = Convert.TryFromBase64String(model.Token, new(new byte[model.Token.Length]), out int _);
-                        var token = validBase64 ? Encoding.ASCII.GetString(Convert.FromBase64String(model.Token)) : "";
-                        var result = await this.userManager.ConfirmEmailAsync(user, token);
-                        this.context.SaveChanges();
-                        if (!result.Succeeded)
+                        var user = await this.userManager.FindByNameAsync(model.UserName);
+                        if (null != user)
                         {
-                            // Email confirmation failed.
-                            // Log the reason the confirmation failed, in case the user contacts us.
-                            logger.LogInformation($"EMail for user {user.UserName} failed:");
-                            foreach (var error in result.Errors)
-                            {
-                                logger.LogInformation($"- {error.Description}");
-                            }
-
-                            return Json(RESULT_MAIL_CONFIRMATION_FAILED);
-                        }
-
-                        // Email has been confirmed. So we can try to set the password.
-                        string validPasswordCheck = this.ValidatePasswordStrength(this.userManager.Options.Password, model.Password);
-                        if (string.IsNullOrEmpty(validPasswordCheck))
-                        {
-                            if (model.Password.Equals(model.ConfirmPassword))
+                            string validPasswordCheck = this.ValidatePasswordStrength(this.userManager.Options.Password, model.Password);
+                            if (string.IsNullOrEmpty(validPasswordCheck))
                             {
                                 await this.userManager.ResetPasswordAsync(
                                     user,
@@ -313,65 +372,14 @@ namespace Recepten.Controllers
                                 this.context.SaveChanges();
                                 return Json(RESULT_OK);
                             }
-                            else
-                            {
-                                return Json(RESULT_PASSWORD_UNEQUAL);
-                            }
-                        }
-                        else
-                        {
-                            return Json(RESULT_PASSWORD_INVALID);
                         }
                     }
                 }
             }
 
-            logger.LogInformation("Registering new user failed because of invalid model state.");
             return Json(RESULT_NOK);
         }
 
-        [HttpPost]
-        [Route("/api/resetpassword")]
-        public async Task<JsonResult> ResetPassword([FromBody] RegisterViewModel model)
-        {
-            // Sign out anyone who is signed in.
-            if (this.User.Identity!.IsAuthenticated)
-            {
-                logger.LogInformation($"User {this.User.Identity.Name} was signed out because of new reset attempt.");
-                AddAuthenticationTokenToRequest();
-            }
-            
-            var user = await this.userManager.FindByNameAsync(model.UserName);
-            if (null != user)
-            {
-                // Email has been confirmed. So we can try to set the password.
-                string validPasswordCheck = this.ValidatePasswordStrength(this.userManager.Options.Password, model.Password);
-                if (string.IsNullOrEmpty(validPasswordCheck))
-                {
-                    if (model.Password.Equals(model.ConfirmPassword))
-                    {
-                        await this.userManager.ResetPasswordAsync(
-                            user,
-                            await this.userManager.GeneratePasswordResetTokenAsync(user),
-                            model.Password
-                        );
-                        this.context.SaveChanges();
-
-                        AddAuthenticationTokenToRequest(await this.authenticationManager.CreateToken("login", userManager, user));
-                        return Json(RESULT_OK);
-                    }
-                    else
-                    {
-                        return Json(RESULT_PASSWORD_UNEQUAL);
-                    }
-                }
-                else
-                {
-                    return Json(RESULT_PASSWORD_INVALID);
-                }
-            }
- 
-            return Json(RESULT_NOK);
-        }
+        #endregion All code for changing the password
     }
 }

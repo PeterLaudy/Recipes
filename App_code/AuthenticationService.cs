@@ -64,6 +64,28 @@ namespace Recepten
             return handler.WriteToken(token);
         }
 
+        public async Task<TokenValidationResult> DecodeTokenAsync(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                return await tokenHandler.ValidateTokenAsync(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = securityKey,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                });
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"{e.Message}");
+            }
+
+            return null;
+        }
+
         #region IUserTwoFactorTokenProvider methods
 
         public async Task<string> GenerateAsync(string purpose, UserManager<ApplicationUser> manager, ApplicationUser user)
@@ -76,26 +98,9 @@ namespace Recepten
             bool result = false;
             if (!string.IsNullOrEmpty(token))
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                try
-                {
-                    var validationResult = await tokenHandler.ValidateTokenAsync(token, new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = securityKey,
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                        ClockSkew = TimeSpan.Zero
-                    });
-
-                    result = validationResult.IsValid && validationResult.Claims[ClaimTypes.UserData].Equals(purpose);
-                    logger.LogWarning($"Validating token {purpose} = {validationResult.Claims[ClaimTypes.UserData]} => {result}");
-                }
-                catch (Exception e)
-                {
-                    logger.LogError($"{e.Message}");
-                }
+                var validatedToken = await DecodeTokenAsync(token);
+                result = validatedToken.IsValid && validatedToken.Claims[ClaimTypes.UserData].Equals(purpose);
+                logger.LogWarning($"Validating token {purpose} = {validatedToken.Claims[ClaimTypes.UserData]} => {result}");
             }
 
             return result;

@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
     selector: 'app-register-user',
     templateUrl: './register-user.component.html'
 })
-export class RegisterUsedrComponent {
+export class RegisterUserComponent {
 
     firstName: string = "";
     lastName: string = "";
@@ -16,7 +16,7 @@ export class RegisterUsedrComponent {
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) { }
 
-    register(): void {
+    registerUser(): void {
         console.log(`Register: ${this.userName}`);
 
         var registerUserData: RegisterUserData =

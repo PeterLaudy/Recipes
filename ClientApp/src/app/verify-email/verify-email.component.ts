@@ -1,37 +1,32 @@
 import { Component, Inject } from '@angular/core';
-import { RegisterData, IRegisterData } from '../data/register.model';
+import { VerifyEmailData, IVerifyEmailData } from '../data/verify-email.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-verifyuser',
-    templateUrl: './verifyuser.component.html'
+    selector: 'app-verify-email',
+    templateUrl: './verify-email.component.html'
 })
-export class VerifyUserComponent {
+export class VerifyEmailComponent {
 
     token: string = "-";
-    firstName: string = "";
-    lastName: string = "";
     userName: string = "";
-    emailAddress: string = "";
-    password: string = "";
-    confirmPassword: string = "";
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) { }
 
-    register(): void {
-        console.log(`Register: ${this.userName}`);
+    ngAfterViewInit(): void {
+        console.log(`Verify email: ${this.userName}`);
 
-        var registerData: RegisterData =
-            new RegisterData(this.token, this.firstName, this.lastName, this.userName, this.emailAddress, this.password, this.confirmPassword);
+        var verifyData: VerifyEmailData =
+            new VerifyEmailData(this.token, this.userName);
 
-        this.http.post<string>(this.baseUrl + 'api/register', registerData)
+        this.http.post<string>(this.baseUrl + 'api/verify-email', verifyData)
         .subscribe(result => {
-            if (result != 'OK') {
+            if (result == 'NOK') {
                 console.log(result);
-                alert(result);
+                alert("Email verification failed!");
             } else {
-                this.router.navigate(['/']);
+                this.router.navigate([`/change-password?token=${result}`]);
             }
         }, error => console.error(error));
     }
