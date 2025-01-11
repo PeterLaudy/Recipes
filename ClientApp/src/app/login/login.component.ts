@@ -13,6 +13,7 @@ export class LoginComponent {
 
     userName: string = "";
     password: string = "";
+    status: string = "";
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) { }
 
@@ -37,6 +38,23 @@ export class LoginComponent {
                 // TODO: Check if we have the editor role, before sending us to this page.
                 // For now it is OK, as every user has this role.
                 this.router.navigate(['/add']);
+            }
+        }, error => console.error(error));
+    }
+
+    resetpassword(): void {
+        console.log(`Reset password: ${this.userName}`);
+
+        var loginData: LoginData = new LoginData(this.userName, this.password);
+
+        this.http.post(this.baseUrl + 'api/request-password-change', loginData)
+        .subscribe(response => {
+            let result: any = response;
+            if (result.status != 'OK') {
+                console.log(result.reason);
+                alert(result.reason);
+            } else {
+                this.status = "Check your mailbox for a link which with you can reset your password.";
             }
         }, error => console.error(error));
     }

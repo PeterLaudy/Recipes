@@ -8,7 +8,16 @@
   <input class="form-control" type="password" placeholder="Password" #pswd [(ngModel)]="password" />
   <br/>
 
-  <button class="btn btn-primary no-padding" (click)="login()">
-    <span class="glyphicon glyphicon-share">&nbsp;</span>Login
-  </button>
+  <p *ngIf="status!=''">{{status}}</p>
+
+  <div *ngIf="status==''">
+    <br/>
+    <button class="col-sm-3 btn btn-primary" (click)="login()">
+      <span class="glyphicon glyphicon-share-alt">&nbsp;</span>Login
+    </button>
+
+    <button class="col-sm-3 btn btn-warning pull-right" (click)="resetpassword()">
+      <span class="glyphicon glyphicon-share-alt">&nbsp;</span>Reset Wachtwoord
+    </button>
+  </div>
 </div>

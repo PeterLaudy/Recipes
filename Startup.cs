@@ -235,9 +235,11 @@ namespace Recepten
             // Check if we have at least one user.
             if (0 == userManager.Users.Count())
             {
-                var firstUser = configuration.GetValue("FirstUser:Name", string.Empty);
+                var firstName = configuration.GetValue("FirstUser:FirstName", string.Empty);
+                var lastName = configuration.GetValue("FirstUser:LastName", string.Empty);
+                var userName = configuration.GetValue("FirstUser:UserName", string.Empty);
                 var eMail = configuration.GetValue("FirstUser:EMail", string.Empty);
-                if (string.IsNullOrEmpty(firstUser) || string.IsNullOrEmpty(eMail))
+                if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(eMail))
                 {
                     CheckForFirstRegistration.FirstUserExists = false;
                 }
@@ -245,14 +247,16 @@ namespace Recepten
                 {
                     var newUser = new ApplicationUser()
                     {
-                        UserName = firstUser,
+                        FirstName = firstName,
+                        LastName = lastName,
+                        UserName = userName,
                         Email = eMail,
                     };
 
                     var result = userManager.CreateAsync(newUser, Guid.NewGuid().ToString()).Result;
                     if (result.Succeeded)
                     {
-                        newUser = userManager.FindByNameAsync(firstUser).Result;
+                        newUser = userManager.FindByNameAsync(userName).Result;
                         userManager.AddToRolesAsync(newUser, [ApplicationRole.AdminRole, ApplicationRole.EditorRole]).Wait();
                     }
                 }

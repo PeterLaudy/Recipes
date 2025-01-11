@@ -21,14 +21,14 @@ namespace Recepten
         {
             if (!FirstUserExists)
             {
-                logger.LogCritical("Adding header Authorization: Register First");
+                logger.LogDebug("Adding header Authorization: Register First");
                 context.Response.Headers.Add(new("authorization", "Register First"));
             }
             else
             {
                 if (!context.User.Identity.IsAuthenticated)
                 {
-                    logger.LogCritical("Adding header Authorization: Logout");
+                    logger.LogDebug("Adding header Authorization: Logout");
                     context.Response.Headers.Add(new("authorization", "Logout"));
                 }
             }

@@ -1,19 +1,17 @@
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 
 using Recepten.Models.Account;
 using Recepten.Models.DB;
 using System.IO;
 using System.Security.Claims;
-using System.Buffers.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Recepten.Controllers
 {
@@ -110,6 +108,16 @@ namespace Recepten.Controllers
             {
                 LogoutUser();
             }
+        }
+
+        private JsonResult CheckLink(TokenValidationResult jsonToken)
+        {
+            if (null != jsonToken.Exception)
+            {
+                return ResultNOK(jsonToken.Exception.Message);
+            }
+
+            return ResultNOK("Invalid link.");
         }
 
         #endregion Internal helper methods
@@ -288,34 +296,31 @@ namespace Recepten.Controllers
                 var jsonToken = await authenticationManager.DecodeBase64TokenAsync(model.Token);
                 if (jsonToken.IsValid && (string)jsonToken.Claims[ClaimTypes.UserData] == PURPOSE_VERIFY_EMAIL)
                 {
-                    // The claims in the token will provide us the username.
-                    var user = await this.userManager.FindByNameAsync(jsonToken.Claims[ClaimTypes.Name] as string);
-                    if (null != user)
+                    if ((jsonToken.Claims[ClaimTypes.Name] as string) == model.UserName)
                     {
-                        user.EmailConfirmed = true;
-                        this.context.Update(user);
-                        this.context.SaveChanges();
-
-                        // We need to add the EmailVerified role for this user.
-                        var confirmResult = await userManager.AddToRoleAsync(user, ApplicationRole.EmailVerifiedRole);
-                        if (confirmResult.Succeeded)
+                        var user = await this.userManager.FindByNameAsync(model.UserName);
+                        if (null != user)
                         {
-                            // Now we need to reset the password of the user and send them the token.
-                            var pswdToken = await this.authenticationManager.CreateBase64Token(PURPOSE_CHANGE_PASSWORD, this.userManager, user);
-                            // The token now goes to the frontend, where the user will add the password (2x)
-                            // and send that back again. Then we can follow the normal route.
-                            return Json(new { status = "OK", token = pswdToken });
+                            user.EmailConfirmed = true;
+                            this.context.Update(user);
+                            this.context.SaveChanges();
+
+                            // We need to add the EmailVerified role for this user.
+                            var confirmResult = await userManager.AddToRoleAsync(user, ApplicationRole.EmailVerifiedRole);
+                            if (confirmResult.Succeeded)
+                            {
+                                // Now we need to reset the password of the user and send them the token.
+                                var pswdToken = await this.authenticationManager.CreateBase64Token(PURPOSE_CHANGE_PASSWORD, this.userManager, user);
+                                // The token now goes to the frontend, where the user will add the password (2x)
+                                // and send that back again. Then we can follow the normal route.
+                                return Json(new { status = "OK", token = pswdToken });
+                            }
                         }
                     }
                 }
                 else
                 {
-                    if (null != jsonToken.Exception)
-                    {
-                        return ResultNOK(jsonToken.Exception.Message);
-                    }
-
-                    return ResultNOK("Invalid link.");
+                    return CheckLink(jsonToken);
                 }
             }
 
@@ -328,17 +333,17 @@ namespace Recepten.Controllers
 
         [HttpPost]
         [Route("/api/request-password-change")]
-        public async Task<IActionResult> RequestPasswordChange(string userName)
+        public async Task<IActionResult> RequestPasswordChange([FromBody] LoginModel model)
         {
             if (this.User.Identity.IsAuthenticated)
             {
                 LogoutUser();
             }
 
-            var user = await this.userManager.FindByNameAsync(userName);
+            var user = await this.userManager.FindByNameAsync(model.UserName);
             if (null != user)
             {
-                logger.LogInformation($"Password reset for user {userName} requested.");
+                logger.LogInformation($"Password reset for user {model.UserName} requested.");
                 // Send the user a link to reset the password.
                 // This is the code used by TimeTracker. We should use the Google mail sender.
                 var token = await this.authenticationManager.CreateBase64Token(PURPOSE_CHANGE_PASSWORD, this.userManager, user);
@@ -391,7 +396,7 @@ namespace Recepten.Controllers
                     }
                 }
 
-                return ResultNOK("The link is invalid");
+                return CheckLink(jsonToken);
             }
 
             return ResultNOK("The passwords probably don't match");
