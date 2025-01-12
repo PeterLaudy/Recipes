@@ -43,6 +43,8 @@ namespace Recepten.Controllers
         {
             Gerecht.SaveToDB(context);
 
+            context.SaveChanges();
+
             // Make sure we that if a Hoeveelheid has an Eenheid or Ingredient
             // with the same ID as another Hoeveelheid, they also point to the same
             // Eenheid or Ingredient instance. Otherwise we have two entities with
