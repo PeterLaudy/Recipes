@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recepten", ".\Recepten.csproj", "{6FE40721-FF71-4EF9-BE27-4AF318715C3E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recepten", ".\BackEnd\Recepten.csproj", "{6FE40721-FF71-4EF9-BE27-4AF318715C3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
