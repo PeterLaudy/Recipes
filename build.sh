@@ -12,7 +12,7 @@ fi
 if [ ]; then
   dotnet publish -c Release -r linux-arm64 --self-contained=false "-p:PublishSingleFile=true" ./Recepten.sln -v n
   if [ "$?" == "0" ]; then
-    rm ./bin/Release/net8.0/linux-arm64/publish/appsettings.*.json
+    rm ./BackEnd/bin/Release/net8.0/linux-arm64/publish/appsettings.*.json
   else
     echo "Build for Linux x64 failed"
     exit 1
@@ -21,8 +21,8 @@ if [ ]; then
 else
   dotnet publish -c Release -r linux-x64 --self-contained=false "-p:PublishSingleFile=true" ./Recepten.sln -v n
   if [ "$?" == "0" ]; then
-    cp ./bin/Release/net8.0/linux-x64/publish/appsettings.Release.json ./bin/Release/net8.0/linux-x64/publish/appsettings.json
-    rm ./bin/Release/net8.0/linux-x64/publish/appsettings.*.json
+    cp ./BackEnd/bin/Release/net8.0/linux-x64/publish/appsettings.Release.json ./BackEnd/bin/Release/net8.0/linux-x64/publish/appsettings.json
+    rm ./BackEnd/bin/Release/net8.0/linux-x64/publish/appsettings.*.json
   else
     echo "Build for Linux x64 failed"
     exit 1

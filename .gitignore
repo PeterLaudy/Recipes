@@ -1,6 +1,6 @@
 .idea
-bin/**
-obj/**
+BackEnd/bin/**
+BackEnd/obj/**
 *.user
 *.log
 appsettings.json
@@ -9,4 +9,4 @@ appsettings.Release.json
 */node_modules/**
 */.angular/**
 .npmrc
-wwwroot/**
+BackEnd/wwwroot/**
