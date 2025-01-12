@@ -10,7 +10,7 @@ namespace Recepten.Models.DB
         [Required]
         public string Naam { get; set; }
 
-        internal void SaveToDB(Context context)
+        internal void SaveToContext(Context context)
         {
             if (0 == EenheidID)
             {

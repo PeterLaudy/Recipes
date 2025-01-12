@@ -22,11 +22,11 @@ namespace Recepten.Models.DB
         [Required]
         public Categorie Categorie { get; set; }
 
-        internal void SaveToDB(Context context)
+        internal void SaveToContext(Context context)
         {
             if (0 == CategorieID)
             {
-                this.Categorie.SaveToDB(context);
+                this.Categorie.SaveToContext(context);
                 this.CategorieID = this.Categorie.CategorieID;
             }
 

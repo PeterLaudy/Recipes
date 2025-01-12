@@ -15,7 +15,6 @@ namespace Recepten.Models.DB
     public class Context : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         private ILogger<Context> logger;
-        private bool chacheIsValid = false;
 
         public Context(DbContextOptions<Context> options, ILogger<Context> logger)
             : base(options)
@@ -45,7 +44,7 @@ namespace Recepten.Models.DB
             modelBuilder.Entity<Hoeveelheid>(b => {
                 b.ToTable("hoeveelheid");
                 b.HasKey(x => new { x.HoeveelheidID });
-                b.HasOne<Gerecht>().WithMany().HasForeignKey(x => x.GerechtID);
+                b.HasOne(x => x.Gerecht).WithMany().HasForeignKey(x => x.GerechtID);
                 b.HasOne(x => x.Ingredient).WithMany().HasForeignKey(x => x.IngredientID);
                 b.HasOne(x => x.Eenheid).WithMany().HasForeignKey(x => x.EenheidID);
             });
@@ -62,13 +61,6 @@ namespace Recepten.Models.DB
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
-        }
-
-        public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            var result = base.SaveChanges(acceptAllChangesOnSuccess);
-            chacheIsValid = false;           
-            return result;
         }
     }
 }

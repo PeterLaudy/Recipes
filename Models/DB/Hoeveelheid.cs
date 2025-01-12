@@ -25,7 +25,9 @@ namespace Recepten.Models.DB
         [Required]
         public Eenheid Eenheid { get; set; }
 
-        internal void SaveToDB(Context context)
+        public Gerecht Gerecht { get; set; }
+
+        internal void SaveToContext(Context context)
         {
             if (0 == HoeveelheidID)
             {

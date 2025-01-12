@@ -39,15 +39,29 @@ namespace Recepten.Controllers
         [Required]
         public List<Hoeveelheid> Hoeveelheden { get; set; }
 
+        /// <summary>
+        /// Save the recipe to the database.
+        /// </summary>
+        /// <remarks>
+        /// The trick is to do this with the least amount of actual writes
+        /// to the underlying database.
+        /// Another less obvious challenge is to make sure that we don't duplicate
+        /// entries in the database. When we get the data from the frontend, we don't
+        /// always have the database ID's. We must make sure that we don't duplicate
+        /// ID's but also keep the amount of entries in the database to a minimum.
+        /// When deleting Hoeveelheden it can be that not all Eenheden en Ingredienten
+        /// are still used. For now there is no check on that. On the other hand it is
+        /// also not a problem as these entities may be used by new recipes.
+        /// </remarks>
+        /// <param name="context"></param>
+        /// <returns></returns>
         internal string SaveToDB(Context context)
         {
-            Gerecht.SaveToDB(context);
+            Gerecht.SaveToContext(context);
 
-            context.SaveChanges();
-
-            // Make sure we that if a Hoeveelheid has an Eenheid or Ingredient
+            // Make sure that if a Hoeveelheid has an Eenheid or Ingredient
             // with the same ID as another Hoeveelheid, they also point to the same
-            // Eenheid or Ingredient instance. Otherwise we have two entities with
+            // Eenheid or Ingredient entity instance. Otherwise we have two entities with
             // the same key, which the entity framework will not like.
             foreach (var h1 in Hoeveelheden)
             {
@@ -72,11 +86,12 @@ namespace Recepten.Controllers
 
             foreach (var hoeveelheid in Hoeveelheden)
             {
-                hoeveelheid.GerechtID = Gerecht!.GerechtID;
+                hoeveelheid.Gerecht = Gerecht;
+                hoeveelheid.GerechtID = Gerecht.GerechtID;
 
                 if (0 == hoeveelheid.IngredientID)
                 {
-                    Ingredient i = context!.Ingredienten.FirstOrDefault(ingredient => ingredient.Naam == hoeveelheid.Ingredient.Naam);
+                    Ingredient i = context.Ingredienten.FirstOrDefault(ingredient => ingredient.Naam == hoeveelheid.Ingredient.Naam);
                     if (null != i)
                     {
                         hoeveelheid.Ingredient = i;
@@ -86,7 +101,7 @@ namespace Recepten.Controllers
 
                 if (0 == hoeveelheid.EenheidID)
                 {
-                    Eenheid e = context!.Eenheden.FirstOrDefault(eenheid => eenheid.Naam == hoeveelheid.Eenheid.Naam);
+                    Eenheid e = context.Eenheden.FirstOrDefault(eenheid => eenheid.Naam == hoeveelheid.Eenheid.Naam);
                     if (null != e)
                     {
                         hoeveelheid.Eenheid = e;
@@ -94,12 +109,12 @@ namespace Recepten.Controllers
                     }
                 }
 
-                hoeveelheid.Ingredient.SaveToDB(context);
-                hoeveelheid.Eenheid.SaveToDB(context);
-                hoeveelheid.SaveToDB(context);
+                hoeveelheid.Ingredient.SaveToContext(context);
+                hoeveelheid.Eenheid.SaveToContext(context);
+                hoeveelheid.SaveToContext(context);
             }
 
-            var hoeveelheden2Delete = context!.Hoeveelheden.Where(hoeveelheid => hoeveelheid.GerechtID == Gerecht.GerechtID);
+            var hoeveelheden2Delete = context.Hoeveelheden.Where(hoeveelheid => hoeveelheid.GerechtID == Gerecht.GerechtID);
             foreach (var hoeveelheid in hoeveelheden2Delete)
             {
                 if (!Hoeveelheden.Contains(hoeveelheid))
