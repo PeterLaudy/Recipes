@@ -9,8 +9,21 @@
     <Nullable>disable</Nullable>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
 
+    <Version>1.0.0</Version>
+    <Authors>Peter Laudy</Authors>
+    <Company>Zestien3</Company>
+
     <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyVersionAttribute>1.0.0.0</AssemblyVersionAttribute>
+    <AssemblyFileVersionAttribute>1.0.0.0</AssemblyFileVersionAttribute>
+    <AssemblyCompanyAttribute>Zestien3</AssemblyCompanyAttribute>
+    <AssemblyCopyrightAttribute>(C) Zestien3 - 2024</AssemblyCopyrightAttribute>
+    <AssemblyProductAttribute>Recepten</AssemblyProductAttribute>
+    <AssemblyDescriptionAttribute>Small web app to store recipes.</AssemblyDescriptionAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,7 +67,9 @@
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
       <DistFiles Include=".\recepten.service" />
-      <DistFiles Include=".\*.sh" Exclude=".\build.sh" />
+      <DistFiles Include=".\appsettings.*" Exclude=".\appsettings.Example.json" />
+      <DistFiles Include=".\*.sh" Exclude=".\build.sh;" />
+      <DistFiles Include=".\*.sh" Exclude=".\build*.sh" />
       <DistFiles Include=".\gerecht.html" />
       <DistFiles Include=".\verificationmail.html" />
       <DistFiles Include=".\wwwroot\**" />
