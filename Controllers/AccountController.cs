@@ -90,10 +90,10 @@ namespace Recepten.Controllers
         {
             // The middleware can attach the authentication header with value Register First.
             // This to tell angular we first need to visit the registration page.
+            // The middleware is called before us, so we are allowed to overrule the Logout.
             if (!this.HttpContext.Response.Headers.ContainsKey("Authorization") ||
                 this.HttpContext.Response.Headers["Authorization"] == "Logout")
             {
-                logger.LogCritical($"Adding header Authorization: {token}");
                 this.HttpContext.Response.Headers["authorization"] = token;
             }
         }
@@ -164,7 +164,6 @@ namespace Recepten.Controllers
                 }
 
                 AddAuthenticationTokenToRequest($"Bearer {await this.authenticationManager.CreateToken(PURPOSE_LOGIN, userManager, user)}");
-                this.context.SaveChanges();
 
                 return ResultOK();
             }
@@ -308,6 +307,8 @@ namespace Recepten.Controllers
                         var user = await this.userManager.FindByNameAsync(model.UserName);
                         if (null != user)
                         {
+                            // We cannot use UserManager.ConfirmEmailAsync, because we use different tokens.
+                            // We therefore also need to update the database ourselves.
                             user.EmailConfirmed = true;
                             this.context.Update(user);
                             this.context.SaveChanges();
@@ -390,6 +391,8 @@ namespace Recepten.Controllers
                             string validPasswordCheck = this.ValidatePasswordStrength(this.userManager.Options.Password, model.Password);
                             if (string.IsNullOrEmpty(validPasswordCheck))
                             {
+                                // We cannot use UserManager.ResetPasswordAsync, because we use different tokens.
+                                // We therefore also need to update the database ourselves.
                                 user.PasswordHash = this.userManager.PasswordHasher.HashPassword(user, model.Password);
                                 this.context.Update(user);
                                 this.context.SaveChanges();

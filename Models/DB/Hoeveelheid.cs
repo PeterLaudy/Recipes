@@ -30,7 +30,6 @@ namespace Recepten.Models.DB
             if (0 == HoeveelheidID)
             {
                 context.Hoeveelheden.Add(this);
-                context.SaveChanges();
             }
             else
             {

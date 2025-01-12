@@ -38,8 +38,6 @@ namespace Recepten.Models.DB
             {
                 context.Gerechten.Update(this);
             }
-
-            context.SaveChanges();
         }
     }
 }

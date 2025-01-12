@@ -15,7 +15,6 @@ namespace Recepten.Models.DB
             if (0 == EenheidID)
             {
                 context.Eenheden.Add(this);
-                context.SaveChanges();
             }
             else
             {

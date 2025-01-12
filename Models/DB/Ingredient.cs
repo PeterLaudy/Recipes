@@ -15,7 +15,6 @@ namespace Recepten.Models.DB
             if (0 == IngredientID)
             {
                 context.Ingredienten.Add(this);
-                context.SaveChanges();
             }
             else
             {

@@ -6,9 +6,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Recepten.Models.DB
 {
+    /// <summary>
+    /// Database context for the application.
+    /// </summary>
+    /// <remarks>
+    /// TODO: cache the Eenheden and Ingredienten tables, as they are hit often when editing a recipe.
+    /// </remarks>
     public class Context : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
-        ILogger<Context> logger;
+        private ILogger<Context> logger;
+        private bool chacheIsValid = false;
 
         public Context(DbContextOptions<Context> options, ILogger<Context> logger)
             : base(options)
@@ -17,11 +24,11 @@ namespace Recepten.Models.DB
             Database.EnsureCreated();
         }
 
-        internal DbSet<Categorie> Categorieen { get; set; }
-        internal DbSet<Gerecht> Gerechten { get; set; }
-        internal DbSet<Hoeveelheid> Hoeveelheden { get; set; }
-        internal DbSet<Eenheid> Eenheden { get; set; }
-        internal DbSet<Ingredient> Ingredienten { get; set; }
+        public DbSet<Categorie> Categorieen { get; set; }
+        public DbSet<Gerecht> Gerechten { get; set; }
+        public DbSet<Hoeveelheid> Hoeveelheden { get; set; }
+        public DbSet<Eenheid> Eenheden { get; set; }
+        public DbSet<Ingredient> Ingredienten { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,6 +62,13 @@ namespace Recepten.Models.DB
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
+        }
+
+        public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            var result = base.SaveChanges(acceptAllChangesOnSuccess);
+            chacheIsValid = false;           
+            return result;
         }
     }
 }

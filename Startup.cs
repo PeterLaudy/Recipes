@@ -258,12 +258,9 @@ namespace Recepten
                     {
                         newUser = userManager.FindByNameAsync(userName).Result;
                         userManager.AddToRolesAsync(newUser, [ApplicationRole.AdminRole, ApplicationRole.EditorRole]).Wait();
-                        context.Update(newUser);
                     }
                 }
             }
-
-            _ = context.SaveChanges();
         }
 
         /// <summary>

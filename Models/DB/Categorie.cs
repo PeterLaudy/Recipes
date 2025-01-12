@@ -15,7 +15,6 @@ namespace Recepten.Models.DB
             if (0 == CategorieID)
             {
                 context.Categorieen.Add(this);
-                context.SaveChanges();
             }
             else
             {
