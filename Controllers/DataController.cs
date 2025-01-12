@@ -170,7 +170,14 @@ namespace Recepten.Controllers
 
             var ingredienten = new StringBuilder();
             recept.Hoeveelheden.ForEach(h => {
-                ingredienten.AppendLine($"{h.Aantal} {h.Eenheid.Naam} {h.Ingredient.Naam}<br/>");
+                if (h.Eenheid.Naam != "stuks")
+                {
+                    ingredienten.AppendLine($"{h.Aantal} {h.Eenheid.Naam} {h.Ingredient.Naam}<br/>");
+                }
+                else
+                {
+                    ingredienten.AppendLine($"{h.Aantal} {h.Ingredient.Naam}<br/>");
+                }
             });
 
             string fileName = Path.Combine(environment.ContentRootPath, "gerecht.html");

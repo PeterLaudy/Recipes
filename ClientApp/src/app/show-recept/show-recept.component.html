@@ -16,7 +16,12 @@
   <div class="row">
     <p>
       <span *ngFor="let hoeveelheid of value.hoeveelheden">
-        {{hoeveelheid.aantal}} {{hoeveelheid.Eenheid.name}} {{hoeveelheid.Ingredient.name}}<br/>
+        <span *ngIf="hoeveelheid.Eenheid.name != 'stuks'">
+          {{hoeveelheid.aantal}} {{hoeveelheid.Eenheid.name}} {{hoeveelheid.Ingredient.name}}<br/>
+        </span>
+        <span *ngIf="hoeveelheid.Eenheid.name == 'stuks'">
+          {{hoeveelheid.aantal}} {{hoeveelheid.Ingredient.name}}<br/>
+        </span>
       </span>
     </p>
   </div>
