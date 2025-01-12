@@ -4,6 +4,8 @@ obj/**
 *.user
 *.log
 appsettings.json
+appsettings.Debug.json
+appsettings.Release.json
 */node_modules/**
 */.angular/**
 .npmrc
