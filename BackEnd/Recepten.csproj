@@ -17,15 +17,6 @@
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <AssemblyVersionAttribute>1.0.0.0</AssemblyVersionAttribute>
-    <AssemblyFileVersionAttribute>1.0.0.0</AssemblyFileVersionAttribute>
-    <AssemblyCompanyAttribute>Zestien3</AssemblyCompanyAttribute>
-    <AssemblyCopyrightAttribute>(C) Zestien3 - 2024</AssemblyCopyrightAttribute>
-    <AssemblyProductAttribute>Recepten</AssemblyProductAttribute>
-    <AssemblyDescriptionAttribute>Small web app to store recipes.</AssemblyDescriptionAttribute>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
     <PackageReference Include="Google.Apis.Gmail.v1" Version="1.68.0.3427" />
@@ -36,17 +27,23 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+    <PackageReference Include="MSBuild.StructuredLogger" Version="2.2.386" Condition="'$(Configuration)' == 'Debug'" />
   </ItemGroup>
 
-  <Target Name="Copy-Settings" BeforeTargets="PrepareForBuild">
-    <Copy SourceFiles=".\appsettings.$(Configuration).json" DestinationFiles=".\appsettings.json" />
-  </Target>
+  <ItemGroup>
+    <Content Remove=".\appsettings.*.json" />
+    <Content Remove=".\*.Production.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <!-- Content Remove="$(SpaRoot)**" / -->
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
+
+  <Target Name="Copy-Settings" BeforeTargets="PrepareForBuild">
+    <Copy SourceFiles=".\appsettings.$(Configuration).json" DestinationFiles=".\appsettings.json" />
+  </Target>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->
@@ -66,12 +63,13 @@
 
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
-      <DistFiles Include=".\recepten.service" />
-      <DistFiles Include=".\*.json" Exclude=".\appsettings.*.json" />
-      <DistFiles Include=".\*.sh"/>
-      <DistFiles Include=".\gerecht.html" />
-      <DistFiles Include=".\verificationmail.html" />
+      <DistFiles Include=".\**" Exclude=".\**" />
+      <DistFiles Include=".\appsettings.json" />
+      <DistFiles Include=".\google-key-file.json" />
       <DistFiles Include=".\wwwroot\**"  />
+      <DistFiles Include=".\MailTemplates\*.html" />
+      <DistFiles Include=".\Linux\**" />
+
       <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
         <RelativePath>%(DistFiles.Identity)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

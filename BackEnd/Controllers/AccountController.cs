@@ -237,7 +237,7 @@ namespace Recepten.Controllers
         {
             var token = await this.authenticationManager.CreateBase64Token(PURPOSE_VERIFY_EMAIL, this.userManager, user);
 
-            string fileName = Path.Combine(this.environment.ContentRootPath, "verificationmail.html");
+            string fileName = Path.Combine(this.environment.ContentRootPath, "MailTemplates", "verificationmail.html");
             string content = System.IO.File.ReadAllText(fileName);
             content = content.Replace("<USERNAME>", user.UserName).Replace("<TOKEN>", token);
             await this.emailSender.SendEmailAsync(user.Email, "Email verificatie voor recepten web-site", content);
@@ -355,7 +355,7 @@ namespace Recepten.Controllers
                 // Send the user a link to reset the password.
                 // This is the code used by TimeTracker. We should use the Google mail sender.
                 var token = await this.authenticationManager.CreateBase64Token(PURPOSE_CHANGE_PASSWORD, this.userManager, user);
-                string fileName = Path.Combine(this.environment.ContentRootPath, "passwordresetmail.html");
+                string fileName = Path.Combine(this.environment.ContentRootPath, "MailTemplates", "passwordresetmail.html");
                 await this.emailSender.SendEmailAsync(
                     user.Email,
                     "Password reset",

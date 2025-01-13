@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using Recepten.Models.DB;
 
-namespace Recepten
+namespace Recepten.Controllers
 {
     public abstract class BaseController : Controller
     {

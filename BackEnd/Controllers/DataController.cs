@@ -180,7 +180,7 @@ namespace Recepten.Controllers
                 }
             });
 
-            string fileName = Path.Combine(environment.ContentRootPath, "gerecht.html");
+            string fileName = Path.Combine(environment.ContentRootPath, "MailTemplates", "recipe.html");
             await this.emailSender.SendEmailAsync(
                 mrd.MailAddress,
                 "Recept",
