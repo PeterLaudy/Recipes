@@ -1,3 +1,5 @@
 {
 	// Service account private key file. See https://cloud.google.com/iam/docs/keys-create-delete for more info.
+	// These keys can be generated on the google cloud console. Search for service accounts.
+	// You need to create a service account and then generate a key for that account.
 }
