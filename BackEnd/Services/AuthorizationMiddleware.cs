@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace Recepten.Services
 {
 
-    public class AuthorizationMiddleware : IAuthorizationMiddlewareResultHandler
+    public class MyAuthorizationMiddleware : IAuthorizationMiddlewareResultHandler
     {
         private readonly AuthorizationMiddlewareResultHandler defaultHandler = new();
 

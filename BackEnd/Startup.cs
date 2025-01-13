@@ -146,7 +146,7 @@ namespace Recepten
 
             services.AddSingleton<IContactsServer, ContactsServer>();
             services.AddSingleton<IMyEmailSender, EmailSender>();
-            services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationMiddleware>();
+            services.AddSingleton<IAuthorizationMiddlewareResultHandler, MyAuthorizationMiddleware>();
             services.AddSingleton<AuthenticationService>();
             services.AddScoped<CheckForFirstRegistration>();
         }
