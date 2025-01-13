@@ -217,6 +217,10 @@ namespace Recepten.Controllers
                         {
                             await userManager.AddToRolesAsync(newUser, [ApplicationRole.AdminRole, ApplicationRole.EditorRole]);
                         }
+                        else
+                        {
+                            await userManager.AddToRolesAsync(newUser, [ApplicationRole.EditorRole]);
+                        }
 
                         return model.UserName;
                     }
