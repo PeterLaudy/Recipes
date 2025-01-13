@@ -25,5 +25,12 @@ namespace Recepten
                 .Build()
                 .Run();
         }
+
+        /// <summary>
+        /// This is used by dotnet-ef for database migrations etc.
+        /// </summary>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
     }
 }

@@ -21,7 +21,8 @@ namespace Recepten.Models.DB
             : base(options)
         {
             this.logger = logger;
-            Database.EnsureCreated();
+            // This will use migrations to initialy create or update the database.
+            RelationalDatabaseFacadeExtensions.Migrate(Database);
         }
 
         public DbSet<Categorie> Categorieen { get; set; }
