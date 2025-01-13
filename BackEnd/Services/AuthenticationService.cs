@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using Recepten.Models.DB;
 
-namespace Recepten
+namespace Recepten.Services
 {
     public class AuthenticationService : IUserTwoFactorTokenProvider<ApplicationUser>
     {

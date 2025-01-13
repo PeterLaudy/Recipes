@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 using Recepten.Models.DB;
+using Recepten.Services;
 
 namespace Recepten
 {

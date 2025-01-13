@@ -12,7 +12,7 @@ using Google.Apis.PeopleService.v1.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
-namespace Recepten
+namespace Recepten.Services
 {
     public class EmailAddress
     {

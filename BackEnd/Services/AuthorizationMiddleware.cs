@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Http;
 
-namespace Recepten
+namespace Recepten.Services
 {
 
     public class AuthorizationMiddleware : IAuthorizationMiddlewareResultHandler

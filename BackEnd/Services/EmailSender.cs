@@ -11,7 +11,7 @@ using Google.Apis.Gmail.v1.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
-namespace Recepten
+namespace Recepten.Services
 {
     public interface IMyEmailSender {
         Task SendEmailAsync(string email, string subject, string htmlMessage);

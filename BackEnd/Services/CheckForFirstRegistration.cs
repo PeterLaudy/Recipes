@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Recepten
+namespace Recepten.Services
 {
     public class CheckForFirstRegistration
     {

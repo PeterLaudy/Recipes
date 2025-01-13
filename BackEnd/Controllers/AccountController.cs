@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using Recepten.Models.Account;
 using Recepten.Models.DB;
+using Recepten.Services;
 
 namespace Recepten.Controllers
 {

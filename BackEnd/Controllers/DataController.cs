@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Recepten.Models.DB;
+using Recepten.Services;
 
 namespace Recepten.Controllers
 {
