@@ -8,6 +8,7 @@ namespace Recepten.Models.DB
         public int CategorieID { get; set; }
 
         [Required]
+        [Display(Name = "Categorie")]
         public string Naam { get; set; }
 
         internal void SaveToContext(Context context)

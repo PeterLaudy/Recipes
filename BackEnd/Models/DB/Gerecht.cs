@@ -11,6 +11,7 @@ namespace Recepten.Models.DB
         public string Naam { get; set; }
 
         [Required]
+        [Display(Name = "Bereidingswijze")]
         public string Omschrijving { get; set; }
 
         [Required]
