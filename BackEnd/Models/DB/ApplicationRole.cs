@@ -6,8 +6,8 @@ namespace Recepten.Models.DB
 {
     public class ApplicationRole : IdentityRole<Guid>
     {
-        public static readonly string AdminRole = "ADMIN";
-        public static readonly string EditorRole = "EDIT";
-        public static readonly string EmailVerifiedRole = "EMAILVERIFIED";
+        public const string AdminRole = "ADMIN";
+        public const string EditorRole = "EDIT";
+        public const string EmailVerifiedRole = "EMAILVERIFIED";
     }
 }
