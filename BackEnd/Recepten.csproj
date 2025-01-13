@@ -43,6 +43,7 @@
 
   <Target Name="Copy-Settings" BeforeTargets="PrepareForBuild">
     <Copy SourceFiles=".\appsettings.$(Configuration).json" DestinationFiles=".\appsettings.json" />
+    <Copy SourceFiles=".\google-key-file.Production.json" DestinationFiles=".\google-key-file.json" />
   </Target>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
