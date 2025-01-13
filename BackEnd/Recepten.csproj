@@ -78,4 +78,16 @@
     </ItemGroup>
   </Target>
 
+  <!-- Need to have this target twice, because combining the AfterTargets into one will not work,
+       as the Target will be executed after the first the build will execute.
+       This means the Publish will be build with the wrong google-key-file.
+       The solution is a bit dodgy, because it assumes that Publish is always a Release build
+       and a 'normal' build always a Debug build. But for me it works. -->
+  <Target Name="Build-Undo-Copy-Settings" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug' ">
+    <Exec Command="git checkout google-key-file.json" />
+  </Target>
+
+  <Target Name="Publish-Undo-Copy-Settings" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
+    <Exec Command="git checkout google-key-file.json" />
+  </Target>
 </Project>
