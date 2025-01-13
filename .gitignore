@@ -6,6 +6,7 @@ BackEnd/obj/**
 appsettings.json
 appsettings.Debug.json
 appsettings.Release.json
+*.Production.json
 */node_modules/**
 */.angular/**
 .npmrc
