@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -163,7 +163,7 @@ namespace Recepten.Controllers
             this.configuration = configuration;
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.AdminRole)]
         [HttpPost("[action]")]
         public async Task<JsonResult> MailRecept([FromBody] MailRecipeData mrd)
         {
@@ -267,7 +267,7 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.EditorRole)]
         [HttpPost("[action]")]
         public JsonResult AddRecept([FromBody] Recept recept)
         {
@@ -354,7 +354,7 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.EditorRole)]
         [HttpGet("[action]")]
         public async Task<JsonResult> EmailAddresses()
         {
