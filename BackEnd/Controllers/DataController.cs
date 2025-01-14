@@ -305,6 +305,7 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.EditorRole)]
         [HttpGet("[action]")]
         public JsonResult Eenheden()
         {
@@ -343,6 +344,7 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.EditorRole)]
         [HttpGet("[action]")]
         public JsonResult Categorieen()
         {
@@ -354,7 +356,7 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
-        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.EditorRole)]
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.AdminRole)]
         [HttpGet("[action]")]
         public async Task<JsonResult> EmailAddresses()
         {
