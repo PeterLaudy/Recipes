@@ -1,4 +1,4 @@
-import { inject, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -24,6 +24,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EditHoeveelhedenComponent, HoeveelhedenValueAccessor } from './edit-hoeveelheden/edit-hoeveelheden.component';
 import { EditHoeveelheidComponent, HoeveelheidValueAccessor } from './edit-hoeveelheid/edit-hoeveelheid.component';
 import { AuthenticationInterceptor } from './interceptor';
+import { EditCategorieenComponent } from './edit-categorieen/edit-categorieen.component';
 
 @NgModule({
     declarations: [
@@ -39,6 +40,7 @@ import { AuthenticationInterceptor } from './interceptor';
         EditReceptComponent,
         EditHoeveelhedenComponent,
         EditHoeveelheidComponent,
+        EditCategorieenComponent,
         EditComponent,
         ShowReceptComponent,
         ShowComponent,
@@ -66,7 +68,8 @@ import { AuthenticationInterceptor } from './interceptor';
             { path: 'login', component: LoginComponent },
             { path: 'register-user', component: RegisterUserComponent },
             { path: 'verify-email', component: VerifyEmailComponent },
-            { path: 'change-password', component: ChangePasswordComponent }
+            { path: 'change-password', component: ChangePasswordComponent },
+            { path: 'edit-categorieen', component: EditCategorieenComponent }
         ]),
         BrowserAnimationsModule
     ],

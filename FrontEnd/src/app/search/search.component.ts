@@ -16,7 +16,6 @@ export class SearchComponent {
     cachedLists: Ingredient[];
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) {
-        this.Ingredienten.push(new Ingredient(null));
 
         http.get<IIngredientDB[]>(baseUrl + 'api/Data/Ingredienten').pipe(
             map(data => {
@@ -33,11 +32,12 @@ export class SearchComponent {
             // we need to change its value. We cannot only change the field members
             // of the cachedLists, as this would not trigger the binding.
             this.cachedLists = result;
+            this.Ingredienten.push(this.cachedLists[0]);
         }, error => console.error(error));
     }
 
     addIngredient(): void {
-        this.Ingredienten.push(new Ingredient(null));
+        this.Ingredienten.push(this.cachedLists[0]);
     }
 
     deleteIngredient(ingredient: Ingredient): void {

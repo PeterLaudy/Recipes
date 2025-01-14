@@ -13,7 +13,7 @@ export class HomeComponent {
     authenticated: boolean = false;
 
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, authService: AuthService) {
-        http.get<GerechtSummaryList[]>(baseUrl + 'api/Data/Recepten', { withCredentials: true }).subscribe(result => {
+        http.post<GerechtSummaryList[]>(baseUrl + 'api/Data/Recepten', { withCredentials: true }).subscribe(result => {
             this.recepten = result;
         }, error => console.error(error));
 

@@ -11,6 +11,10 @@ namespace Recepten.Models.DB
         [Display(Name = "Categorie")]
         public string Naam { get; set; }
 
+        [Required]
+        [Display(Name = "Icon")]
+        public string IconPath { get; set; }
+
         internal void SaveToContext(Context context)
         {
             if (0 == CategorieID)

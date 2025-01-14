@@ -1,0 +1,16 @@
+<h1>Gerecht Types</h1>
+
+<div class="row" *ngIf="value">
+  <div class="col-xs-3" *ngFor="let categorie of value; let i = index" cdkDrag>
+    <img class="img-fluid" [src]="categorie.iconPath" (click)="deleteCategorie(i)" />{{categorie.name}}
+  </div>
+</div>
+<div>
+  <br/>
+  <input class="col-xs-12" type="text" placeholder="Type name" [(ngModel)]="newTypeName" />
+  <br/>
+  <br/>
+  <span *ngFor="let iconPath of availableicons; let i = index">
+    <img class="img-fluid" [src]="availableicons[i]" (click)="addCategorie(i)" />
+  </span>
+</div>

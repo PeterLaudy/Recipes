@@ -27,6 +27,7 @@ namespace Recepten.Models.DB
 
         public DbSet<Categorie> Categorieen { get; set; }
         public DbSet<Gerecht> Gerechten { get; set; }
+        public DbSet<GerechtCategorieCombinatie> GerechtCategorieCombinaties { get; set; }
         public DbSet<Hoeveelheid> Hoeveelheden { get; set; }
         public DbSet<Eenheid> Eenheden { get; set; }
         public DbSet<Ingredient> Ingredienten { get; set; }
@@ -41,7 +42,12 @@ namespace Recepten.Models.DB
             modelBuilder.Entity<Gerecht>(b => {
                 b.ToTable("gerecht");
                 b.HasKey(x => new { x.GerechtID });
-                b.HasOne(x => x.Categorie).WithMany().HasForeignKey(x => x.CategorieID);
+            });
+            modelBuilder.Entity<GerechtCategorieCombinatie>(b => {
+                b.ToTable("gerechtcategoriecombinatie");
+                b.HasKey(x => new { x.GerechtCategorieCombinatieID });
+                b.HasOne<Gerecht>().WithMany().HasForeignKey(x => x.GerechtID);
+                b.HasOne<Categorie>().WithMany().HasForeignKey(x => x.CategorieID);
             });
             modelBuilder.Entity<Hoeveelheid>(b => {
                 b.ToTable("hoeveelheid");
