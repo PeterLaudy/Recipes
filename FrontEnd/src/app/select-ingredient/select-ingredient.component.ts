@@ -12,34 +12,15 @@ export class SelectIngredientComponent {
 
     @Input() readonly: boolean;
     @Input() value: Ingredient;
+    @Input() ingredienten: Ingredient[];
     @Output() valueChange: EventEmitter<Ingredient>
-
-    allIngredienten: Ingredient[];
-
+ 
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
         this.valueChange = new EventEmitter<Ingredient>();
-
-        http.get<IIngredientDB[]>(baseUrl + 'api/Data/Ingredienten').pipe(
-            map(data => {
-                const result: Ingredient[] = [];
-                for (const d of data) {
-                    const i = new Ingredient(d);
-                    result.push(i);
-                }
-                return result.sort((a, b) => a.name.localeCompare(b.name));
-            })
-        )
-        .subscribe(result => {
-            this.allIngredienten = result;
-            if (this.readonly && (0 == this.value.index)) {
-                this.value.index = this.allIngredienten[0].index;
-                this.value.name = this.allIngredienten[0].name;
-            }
-        }, error => console.error(error));
     }
 
     changeSelect(index: number, event): void {
-        this.allIngredienten.forEach(i => {
+        this.ingredienten.forEach(i => {
             if (i.index == index) {
                 // Don't use value = i !
                 // That will give the caller a reference to the item in the list, causing all kinds of problems.
@@ -54,7 +35,7 @@ export class SelectIngredientComponent {
         this.value = new Ingredient(null);
         this.value.index = 0;
         this.value.name = naam;
-        this.allIngredienten.forEach(i => {
+        this.ingredienten.forEach(i => {
             if (i.name === naam) {
                 this.value = i;
             }

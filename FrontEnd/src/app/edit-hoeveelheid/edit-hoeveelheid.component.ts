@@ -1,6 +1,7 @@
 import { Component, ViewChildren, AfterViewInit, Input, Directive, forwardRef, EventEmitter, Output } from '@angular/core';
 import { Hoeveelheid } from '../data/hoeveelheid.model';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { SelectionLists } from '../data/selection-lists.model';
 
 @Component({
     selector: 'app-edit-hoeveelheid',
@@ -11,6 +12,7 @@ export class EditHoeveelheidComponent implements AfterViewInit {
     @Input() value: Hoeveelheid;
     @Output() valueChange: EventEmitter<Hoeveelheid>;
     @Output() deleted: EventEmitter<Hoeveelheid>;
+    @Input() cachedLists: SelectionLists;
     @ViewChildren('qty') aantalUIElement;
 
     constructor() {

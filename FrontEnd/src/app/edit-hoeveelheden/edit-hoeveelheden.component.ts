@@ -1,6 +1,7 @@
 import { Component, Input, Directive, forwardRef, EventEmitter, Output } from '@angular/core';
 import { Hoeveelheid } from '../data/hoeveelheid.model';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { SelectionLists } from '../data/selection-lists.model';
 
 @Component({
     selector: 'app-edit-hoeveelheden',
@@ -9,6 +10,7 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 export class EditHoeveelhedenComponent {
 
     @Input() value: Hoeveelheid[];
+    @Input() cachedLists: SelectionLists;
     @Output() valueChange: EventEmitter<Hoeveelheid[]>;
 
     constructor() {

@@ -12,26 +12,11 @@ export class SelectEenheidComponent {
 
     @Input() readonly: boolean;
     @Input() value: Eenheid;
+    @Input() eenheden: Eenheid[];
     @Output() valueChange: EventEmitter<Eenheid>
-
-    eenheden: Eenheid[];
 
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
         this.valueChange = new EventEmitter<Eenheid>();
-
-        http.get<IEenheidDB[]>(baseUrl + 'api/Data/Eenheden').pipe(
-            map(data => {
-                const result: Eenheid[] = [];
-                for (const d of data) {
-                    const e = new Eenheid(d);
-                    result.push(e);
-                }
-                return result.sort((a, b) => a.name.localeCompare(b.name));
-            })
-        )
-        .subscribe(result => {
-            this.eenheden = result;
-        }, error => console.error(error));
     }
 
     changeSelect(index: number, event): void {
