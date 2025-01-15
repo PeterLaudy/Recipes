@@ -351,16 +351,99 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
-        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.EditorRole)]
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, 
+                   Roles=$"{ApplicationRole.EditorRole},{ApplicationRole.AdminRole}")]
         [HttpGet("[action]")]
         public JsonResult Categorieen()
         {
-            var result = this.context.Categorieen.Select(c => new {
-                categorieID = c.CategorieID,
-                naam = c.Naam
-            }).ToList();
+            return Json(this.context.Categorieen.ToList());
+        }
 
-            return Json(result);
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.AdminRole)]
+        [HttpPost("[action]")]
+        public JsonResult Categorieen([FromBody] List<Categorie> model)
+        {
+            var existingCategories = this.context.Categorieen.ToList();
+            var newCategories = new List<Categorie>();
+            var foundDoubleName = string.Empty;
+            model.ForEach(c =>
+            {
+                Categorie cat;
+                if (0 != c.CategorieID)
+                {
+                    // Check if we have a categorie with the same ID...
+                    cat = existingCategories.FirstOrDefault(ec => ec.CategorieID == c.CategorieID);
+                }
+                else
+                {
+                    // Check if we have a categorie with the same name...
+                    cat = existingCategories.FirstOrDefault(ec => ec.Naam == c.Naam);
+                }
+                if (null != cat)
+                {
+                    if (newCategories.Any(newC => newC.Naam == c.Naam))
+                    {
+                        // We have two categories with the same name. That is not going to work.
+                        foundDoubleName = c.Naam;
+                    }
+
+                    // ...In that case we change the name and icon for that categorie...
+                    cat.IconPath = c.IconPath;
+                    cat.Naam = c.Naam;
+                    newCategories.Add(cat);
+                }
+                else
+                {
+                    // ...Otherwise we create a new categorie.
+                    newCategories.Add(new Categorie()
+                    {
+                        CategorieID = 0,
+                        Naam = c.Naam,
+                        IconPath = c.IconPath
+                    });
+                }
+            });
+
+            if (!string.IsNullOrEmpty(foundDoubleName))
+            {
+                // No need to continue, we are not going to update the database.
+                return ResultNOK($"De naam {foundDoubleName} kwam twee keer voor in de lijst");
+            }
+
+            // newCategorie now contains all categories the user wanted.
+            // But we need to check if there are catgories we should delete
+            // and check if they are not in use. In that case we skip deleting them.
+            var categoriesToDelete = new List<Categorie>();
+            var couldNotDeleteAllCategories = false;
+            existingCategories.ForEach(ec =>
+            {
+                // If the categorie cannot be deleted we add it to the newCategories list.
+                if (!newCategories.Contains(ec))
+                {
+                    // Check if we can delete this categorie.
+                    if (this.context.GerechtCategorieCombinaties.Any(combi => combi.CategorieID == ec.CategorieID))
+                    {
+                        newCategories.Add(ec);
+                        couldNotDeleteAllCategories = true;
+                    }
+                    else
+                    {
+                        categoriesToDelete.Add(ec);
+                    }
+                }
+            });
+            newCategories.ForEach(c => c.SaveToContext(this.context));
+            categoriesToDelete.ForEach(c => this.context.Remove(c));
+            this.context.SaveChanges();
+
+            if (couldNotDeleteAllCategories)
+            {
+                return ResultNOK("Niet alle categorieën konden worden verwijdert.");
+            }
+            else
+            {
+                return ResultOK();
+            }
         }
 
         [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.AdminRole)]

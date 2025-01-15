@@ -1,34 +1,35 @@
 export interface ICategorieDB {
-    categorieID: number;
-    naam: string;
-    iconPath: string;
+    CategorieID: number;
+    Naam: string;
+    IconPath: string;
 }
 
 export class CategorieDB implements ICategorieDB {
     constructor(categorie: Categorie) {
-        this.categorieID = categorie.index;
-        this.naam = categorie.name;
+        this.CategorieID = categorie.categorieID;
+        this.Naam = categorie.naam;
+        this.IconPath = categorie.iconPath;
     }
 
-    categorieID: number;
-    naam: string;
-    iconPath: string;
+    CategorieID: number;
+    Naam: string;
+    IconPath: string;
 }
 
 export class Categorie {
     constructor(record: ICategorieDB) {
         if (record) {
-            this.index = record.categorieID;
-            this.name = record.naam;
-            this.iconPath = record.iconPath;
+            this.categorieID = record.CategorieID;
+            this.naam = record.Naam;
+            this.iconPath = record.IconPath;
         } else {
-            this.index = 0;
-            this.name = "";
+            this.categorieID = 0;
+            this.naam = "";
             this.iconPath = "";
         }
     }
 
-    index: number;
-    name: string;
+    categorieID: number;
+    naam: string;
     iconPath: string;
 }

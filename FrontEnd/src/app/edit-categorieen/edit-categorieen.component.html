@@ -2,15 +2,21 @@
 
 <div class="row" *ngIf="value">
   <div class="col-xs-3" *ngFor="let categorie of value; let i = index" cdkDrag>
-    <img class="img-fluid" [src]="categorie.iconPath" (click)="deleteCategorie(i)" />{{categorie.name}}
+    <img class="img-fluid" [src]="categorie.iconPath" (click)="changeCategorie(i)" />{{categorie.naam}}
   </div>
 </div>
 <div>
   <br/>
-  <input class="col-xs-12" type="text" placeholder="Type name" [(ngModel)]="newTypeName" />
+  <input class="col-xs-12" type="text" #categorie placeholder="Categorie naam" [(ngModel)]="newCategorieName" />
   <br/>
   <br/>
   <span *ngFor="let iconPath of availableicons; let i = index">
     <img class="img-fluid" [src]="availableicons[i]" (click)="addCategorie(i)" />
   </span>
+</div>
+<div>
+<br/>
+  <button class="col-sm-3 btn btn-primary" [disabled]="true == disableSave" (click)="saveCategorieen()">
+    <span class="glyphicon glyphicon-share-alt">&nbsp;</span>Bewaar
+  </button>
 </div>

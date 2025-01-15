@@ -1,6 +1,9 @@
-import { Component, Input, Directive, forwardRef, EventEmitter, Output } from '@angular/core';
+import { Component, Input, Directive, forwardRef, EventEmitter, Output, Inject, ViewChildren } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Categorie } from '../data/categorie.model';
+import { Categorie, CategorieDB } from '../data/categorie.model';
+import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-categorieen',
@@ -9,9 +12,12 @@ import { Categorie } from '../data/categorie.model';
 })
 export class EditCategorieenComponent {
 
+    @ViewChildren('categorie') naamInput;
+
     @Input() value: Categorie[] = [];
-    newTypeName: string = "";
+    newCategorieName: string = "";
     newIconName: string = "";
+    disableSave: boolean = true;
 
     availableicons: string[] = [
         "/assets/icons/brood.svg",
@@ -37,24 +43,78 @@ export class EditCategorieenComponent {
         "/assets/icons/soep.svg"
     ];
 
-    constructor() { }
+    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) {
+        // Get all the available values for the Categorien
+        this.getDataFromServer();
+    }
+
+    ngAfterViewInit(): void {
+        this.focusEditElement();
+    }
+
+    private focusEditElement() {
+        if (this.naamInput && this.naamInput.first) {
+            this.naamInput.first.nativeElement.focus();
+        }
+    }
+
+    private getDataFromServer() {
+        this.disableSave = true;
+        this.http.get<Categorie[]>(this.baseUrl + 'api/Data/Categorieen').pipe(
+            map(data => {
+                return data.sort((a, b) => a.naam.localeCompare(b.naam));
+            })
+        )
+        .subscribe(result => {
+            this.value = result;
+            this.disableSave = false;
+        }, error => console.error(error));
+    }
 
     addCategorie(i: number): void {
-        let newValue = new Categorie(null);
-        newValue.index = 0;
-        newValue.name = this.newTypeName;
-        newValue.iconPath = this.availableicons[i];
-        this.value.push(newValue);
-    }
-
-    deleteCategorie(i: number): void {
-        this.value.splice(i, 1);
-    }
-
-    drop(event: any): void {
-        for(var key in event) {
-            console.log(`${key} => ${event[key]}`);
+        if ("" != this.newCategorieName) {
+            let newValue = new Categorie(null);
+            newValue.naam = this.newCategorieName;
+            newValue.iconPath = this.availableicons[i];
+            this.value.push(newValue);
         }
+ 
+        this.newCategorieName = "";
+        this.focusEditElement();
+    }
+
+    changeCategorie(i: number): void {
+        if ("" == this.newCategorieName)
+        {
+            this.value.splice(i, 1);
+        }
+        else
+        {
+            this.value[i].naam = this.newCategorieName;
+        }
+        this.newCategorieName = "";
+        this.focusEditElement();
+    }
+
+    saveCategorieen(): void {
+        var data: CategorieDB[] = [];
+        for (const v of this.value) {
+            data.push(new CategorieDB(v));
+        }
+
+        this.http.post(this.baseUrl + 'api/Data/Categorieen', data)
+        .subscribe(response => {
+            let result: any = response;
+            if ("OK" != result.status) {
+                console.log(result.reason);
+                alert(result.reason);
+                this.getDataFromServer();
+                this.focusEditElement();
+            } else {
+                // Go back to the admin page.
+                this.router.navigate(['/admin']);
+            }
+        }, error => console.error(error));
     }
 }
 

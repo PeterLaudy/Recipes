@@ -18,14 +18,9 @@ export class SelectCategorieComponent {
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
         this.valueChange = new EventEmitter<Categorie>();
 
-        http.get<ICategorieDB[]>(baseUrl + 'api/Data/Categorieen').pipe(
+        http.get<Categorie[]>(baseUrl + 'api/Data/Categorieen').pipe(
             map(data => {
-                const result: Categorie[] = [];
-                for (const d of data) {
-                    const c = new Categorie(d);
-                    result.push(c);
-                }
-                return result.sort((a, b) => a.name.localeCompare(b.name));
+                return data.sort((a, b) => a.naam.localeCompare(b.naam));
             })
         )
         .subscribe(result => {
@@ -40,10 +35,10 @@ export class SelectCategorieComponent {
 
     changeInput(naam: string, event): void {
         this.value = new Categorie(null);
-        this.value.index = 0;
-        this.value.name = naam;
+        this.value.categorieID = 0;
+        this.value.naam = naam;
         this.categorieen.forEach(c => {
-            if (c.name === naam) {
+            if (c.naam === naam) {
                 this.value = c;
             }
         });
