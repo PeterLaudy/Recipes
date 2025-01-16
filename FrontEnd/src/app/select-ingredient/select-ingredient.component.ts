@@ -32,12 +32,11 @@ export class SelectIngredientComponent {
     }
 
     changeInput(naam: string, event): void {
-        this.value = new Ingredient(null);
         this.value.index = 0;
         this.value.name = naam;
         this.ingredienten.forEach(i => {
             if (i.name === naam) {
-                this.value = i;
+                this.value.index = i.index;
             }
         });
         this.valueChange.emit(this.value);
@@ -54,8 +53,8 @@ export class SelectIngredientComponent {
 })
 export class IngredientValueAccessor implements ControlValueAccessor {
     public value: Ingredient;
-    public get ingredient(): Ingredient { return this.value }
-    public set ingredient(v: Ingredient) {
+    public get ngModel(): Ingredient { return this.value }
+    public set ngModel(v: Ingredient) {
       if (v !== this.value) {     
         this.value = v;
         this.onChange(v);
@@ -66,7 +65,7 @@ export class IngredientValueAccessor implements ControlValueAccessor {
     onTouched: () => void = () => { };
 
     writeValue(value: Ingredient): void {
-        this.ingredient = value;
+        this.ngModel = value;
     }
 
     registerOnChange(fn: (_: any) => void): void {

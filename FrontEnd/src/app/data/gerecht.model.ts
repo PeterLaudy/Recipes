@@ -1,3 +1,5 @@
+import { Categorie } from "./categorie.model";
+
 export interface IGerechtDB {
     gerechtID: number;
     naam: string;
@@ -43,8 +45,5 @@ export class Gerecht {
 export class GerechtSummary {
     public index: number;
     public name: string;
-}
-
-export class GerechtSummaryList {
-    public list: GerechtSummary[];
+    public categorieen: Categorie[];
 }

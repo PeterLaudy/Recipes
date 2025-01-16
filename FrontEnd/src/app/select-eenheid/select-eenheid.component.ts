@@ -1,7 +1,7 @@
 import { Component, Directive, Input, Inject, ViewChildren, forwardRef, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-import { IEenheidDB, Eenheid } from '../data/eenheid.model';
+import { Eenheid } from '../data/eenheid.model';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
 @Component({
@@ -20,17 +20,23 @@ export class SelectEenheidComponent {
     }
 
     changeSelect(index: number, event): void {
-        this.value = this.eenheden[index];
+        this.eenheden.forEach(e => {
+            if (e.index == index) {
+                // Don't use value = e !
+                // That will give the caller a reference to the item in the list, causing all kinds of problems.
+                this.value.index = e.index;
+                this.value.name = e.name;
+            }
+        });
         this.valueChange.emit(this.value);
     }
 
     changeInput(naam: string, event): void {
-        this.value = new Eenheid(null);
         this.value.index = 0;
         this.value.name = naam;
         this.eenheden.forEach(e => {
             if (e.name === naam) {
-                this.value = e;
+                this.value.index = e.index;
             }
         });
         this.valueChange.emit(this.value);
@@ -47,8 +53,8 @@ export class SelectEenheidComponent {
 })
 export class EenheidValueAccessor implements ControlValueAccessor {
     public value: Eenheid;
-    public get eenheid(): Eenheid { return this.value }
-    public set eenheid(v: Eenheid) {
+    public get ngModel(): Eenheid { return this.value }
+    public set ngModel(v: Eenheid) {
       if (v !== this.value) {     
         this.value = v;
         this.onChange(v);
@@ -59,7 +65,7 @@ export class EenheidValueAccessor implements ControlValueAccessor {
     onTouched: () => void = () => { };
 
     writeValue(value: Eenheid): void {
-        this.eenheid = value;
+        this.ngModel = value;
     }
 
     registerOnChange(fn: (_: any) => void): void {

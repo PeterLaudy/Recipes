@@ -5,12 +5,16 @@
     <br/>
   </div>
   <div class="row">
+    <p>Categorieën</p>
+  </div>
+  <div class="row">
+    <app-select-categorie [value]="value.categorieen"></app-select-categorie>
   </div>
   <div class="row">
     <p>Ingrediënten:</p>
   </div>
   <div class="row">
-    <app-edit-hoeveelheden [(value)]="value.hoeveelheden" [(cachedLists)]="cachedLists"></app-edit-hoeveelheden>
+    <app-edit-hoeveelheden [value]="value.hoeveelheden" [(cachedLists)]="cachedLists"></app-edit-hoeveelheden>
   </div>
   <div class="row">
     <br/>

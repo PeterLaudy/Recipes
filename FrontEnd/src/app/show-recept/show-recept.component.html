@@ -1,12 +1,15 @@
 <div class="col-sm-12" [hidden]="(null == email.addresses)" *ngIf="value">
   <br/>
   <div class="row" [hidden]="(null == email.addresses) || (0 == email.addresses.length)">
-    <app-select-email class="col-xs-8" #email [(value)]="mailAddress"></app-select-email>
+    <app-select-email class="col-xs-8" #email [value]="mailAddress"></app-select-email>
     <div class="col-xs-4">
       <button class="btn btn-primary" (click)="sendMail()"><span class="glyphicon glyphicon-envelope">&nbsp;</span>Verstuur</button>
     </div>
   </div>
   <h1 class="row">{{value.gerecht.name}}</h1>
+  <div class="row">
+    <app-select-categorie [value]="value.categorieen" [readonly]="true"></app-select-categorie>
+  </div>
   <div class="row">
     <br/>
   </div>

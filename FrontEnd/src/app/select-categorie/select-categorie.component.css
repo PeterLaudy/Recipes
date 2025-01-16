@@ -1,0 +1,20 @@
+img {
+    padding: 2px;
+    margin: 2px;
+}
+
+img.no-border {
+    border: 2px solid transparent;
+}
+
+img.border {
+    border: 2px solid #000;
+}
+
+img.no-border > svg {
+    stroke: #888;
+}
+
+img.border > svg {
+    stroke: #000;
+}

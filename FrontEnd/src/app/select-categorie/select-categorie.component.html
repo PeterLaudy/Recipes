@@ -1,8 +1,18 @@
-<div class="col-xs-4 no-padding" *ngIf="categorieen">
-  <input class="form-control no-padding" placeholder="Categorie?" list="list" #inputCategorie [(value)]="value.naam"
-         (change)="changeInput(inputCategorie.value, $event)" (keyup)="changeInput(inputCategorie.value, $event)">
-  <datalist id="list">
-    <option *ngFor="let categorie of categorieen" [(value)]="categorie.naam"></option>
-  </datalist>
-  <br/>
+<div class="col-xs-12" *ngIf="categorieen">
+
+  <div class="row" *ngIf="categorieen">
+    <span *ngIf="false==readonly">
+      <span *ngFor="let categorie of categorieen; let i = index">
+        <img [class]="imgClass[i]" [src]="categorie.iconPath" (click)="toggleCategorie(i)" />
+      </span>
+    </span>
+  </div>
+  <div class="row" *ngIf="value">
+    <span *ngIf="true==readonly">
+      <span *ngFor="let categorie of value; let i = index">
+        <img [class]="imgClass[i]" [src]="categorie.iconPath" />
+      </span>
+    </span>
+  </div>
+
 </div>

@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IIngredientDB, Ingredient, IngredientDB } from '../data/ingredient.model';
-import { GerechtSummaryList } from '../data/gerecht.model';
+import { GerechtSummary } from '../data/gerecht.model';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -12,7 +12,7 @@ import { map } from 'rxjs/operators';
 export class SearchComponent {
 
     Ingredienten: Ingredient[] = [];
-    Recepten: GerechtSummaryList[];
+    Recepten: GerechtSummary[];
     cachedLists: Ingredient[];
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) {
@@ -54,7 +54,7 @@ export class SearchComponent {
             result.push(new IngredientDB(val));
         })
 
-        this.http.post<GerechtSummaryList[]>(this.baseUrl + 'api/Data/FindRecept', result)
+        this.http.post<GerechtSummary[]>(this.baseUrl + 'api/Data/FindRecept', result)
         .subscribe(result => {
             this.Recepten = result;
         }, error => console.error(error));

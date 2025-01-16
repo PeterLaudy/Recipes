@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -25,8 +26,8 @@ namespace Recepten.Controllers
         internal Recept(int gerechtIndex, Context context)
         {
             this.Gerecht = context.Gerechten.First(g => g.GerechtID == gerechtIndex);
-            this.Hoeveelheden = new List<Hoeveelheid>();
-            this.Categorieen = new List<Categorie>();
+            this.Hoeveelheden = new();
+            this.Categorieen = new();
             Hoeveelheden.AddRange(
                 context.Hoeveelheden
                     .Include(h => h.Ingredient)
@@ -34,7 +35,7 @@ namespace Recepten.Controllers
                     .Where(h => h.GerechtID == gerechtIndex));
             Categorieen.AddRange(
                 context.GerechtCategorieCombinaties
-                    .Where(c => c.GerechtID == gerechtIndex)
+                    .Where(combi => combi.GerechtID == gerechtIndex)
                     .Join(context.Categorieen, combi => combi.CategorieID, cat => cat.CategorieID, (combi, cat) => cat));
         }
 
@@ -42,10 +43,10 @@ namespace Recepten.Controllers
         public Gerecht Gerecht { get; set; }
 
         [Required]
-        public List<Hoeveelheid> Hoeveelheden { get; set; }
+        public List<Categorie> Categorieen { get; set; }
 
         [Required]
-        public List<Categorie> Categorieen { get; set; }
+        public List<Hoeveelheid> Hoeveelheden { get; set; }
 
         /// <summary>
         /// Save the recipe to the database.
@@ -89,6 +90,27 @@ namespace Recepten.Controllers
                             h1.Ingredient = h2.Ingredient;
                         }
                     }
+                }
+            }
+
+            var huidigeCategorieen = context.GerechtCategorieCombinaties
+                .Where(c => c.GerechtID == Gerecht.GerechtID)
+                .ToList();
+
+            foreach (var categorie in Categorieen)
+            {
+                var gcc = huidigeCategorieen.FirstOrDefault(g => g.CategorieID == categorie.CategorieID);
+                if (null == gcc)
+                {
+                    new GerechtCategorieCombinatie(){ CategorieID = categorie.CategorieID, GerechtID = Gerecht.GerechtID }.SaveToContext(context);
+                }
+            }
+
+            foreach (var gcc in huidigeCategorieen)
+            {
+                if (!Categorieen.Any(cat => cat.CategorieID == gcc.CategorieID))
+                {
+                    context.Remove(gcc);
                 }
             }
 
@@ -205,22 +227,35 @@ namespace Recepten.Controllers
         [HttpPost("[action]")]
         public JsonResult Recepten([FromBody] List<int> categorieIDs)
         {
-            List<Gerecht> gerechten;
-            if ((null == categorieIDs) || (0 == categorieIDs.Count))
-            {
+            var selectAll = (null == categorieIDs) || (0 == categorieIDs.Count);
+
+            // First we get the recipes we need to return.
+            var gerechten = selectAll ?
                 // Return all Gerechten.
-                gerechten = context.Gerechten.ToList();
-            }
-            else
-            {
-                // Return those Gerechten that conform with this Categorie.
-                gerechten = context.GerechtCategorieCombinaties
+                context.Gerechten.OrderBy(g => g.Naam).ToList() :
+                // Return only the Gerechten which have one of the given categorieIDs set
+                context.GerechtCategorieCombinaties
                     .Where(combi => categorieIDs.Contains(combi.CategorieID))
                     .Join(context.Gerechten, combi => combi.GerechtID, gerecht => gerecht.GerechtID, (combi, gerecht) => gerecht)
+                    .OrderBy(g => g.Naam)
                     .ToList();
-            }
 
-            var result = gerechten.Select(g => new { name = g.Naam, index = g.GerechtID }).OrderBy(a => a.name).ToList();
+            // Then we add the categorieen ID' to them.
+            var temp = gerechten.GroupJoin(context.GerechtCategorieCombinaties,
+                gerecht => gerecht.GerechtID,
+                combi => combi.GerechtID,
+                (gerecht, combi) => new { name = gerecht.Naam, index = gerecht.GerechtID, categorieen = combi.Select(c => c.CategorieID).ToList() })
+            .ToList();
+
+            // Then we add the whole categorie to the records.
+            var result = temp.Select(r => new
+            {
+                name = r.name,
+                index = r.index,
+                categorieen = r.categorieen
+                    .Join(context.Categorieen, c => c, cat => cat.CategorieID, (c, cat) => cat )
+            });
+
             return Json(result);
         }
 
@@ -351,8 +386,6 @@ namespace Recepten.Controllers
             return Json(result);
         }
 
-        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, 
-                   Roles=$"{ApplicationRole.EditorRole},{ApplicationRole.AdminRole}")]
         [HttpGet("[action]")]
         public JsonResult Categorieen()
         {

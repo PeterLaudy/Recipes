@@ -10,7 +10,7 @@
     <div class="col-sm-4 no-padding">
       <!-- Because ingredient is a variable, we cannot assign [(value)] to it, because
            when assigning back, the variable no longer exists. Therefore we use Ingredienten[i] -->
-      <app-select-ingredient readonly="true" [(value)]="Ingredienten[i]" [ingredienten]="cachedLists"></app-select-ingredient>
+      <app-select-ingredient readonly="true" [value]="Ingredienten[i]" [ingredienten]="cachedLists"></app-select-ingredient>
     </div>
   </div>
   <div>
@@ -35,8 +35,11 @@
     <ul *ngIf="Recepten">
       <li *ngFor="let recept of Recepten">
         <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
-        <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>
-      </li>
+        <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>&nbsp;
+        <span *ngFor="let categorie of recept.categorieen">
+          <img class="small-icons" [src]="categorie.iconPath" />
+        </span>
+    </li>
     </ul>
   </div>
 </div>

@@ -1,10 +1,25 @@
-<h1>Recepten.</h1>
-<p>Welkom op deze recepten web-site</p>
-<ul *ngIf="recepten">
-  <li *ngFor="let recept of recepten">
-    <span *ngIf="authenticated">
-      <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
-    </span>
-    <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>
-  </li>
-</ul>
+<div class="col-xs-12">
+  <div class="row">
+    <h1>Recepten.</h1>
+    <p>Welkom op deze recepten web-site</p>
+  </div>
+  <div class="row" *ngIf="categorieen">
+    <app-select-categorie [value]="categorieen" (change)="categoriechanged($event)"></app-select-categorie>
+  </div>
+  <br/>
+  <div class="row">
+    <ul *ngIf="recepten">
+      <li *ngFor="let recept of recepten; let i = index">
+        <span *ngIf="true == visible[i]">
+          <span *ngIf="authenticated">
+            <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+          </span>
+          <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>&nbsp;
+          <span *ngFor="let categorie of recept.categorieen">
+            <img class="small-icons" [src]="categorie.iconPath" />
+          </span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</div>

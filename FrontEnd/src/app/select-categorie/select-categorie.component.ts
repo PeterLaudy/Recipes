@@ -1,22 +1,26 @@
-import { Component, Directive, Input, Inject, forwardRef, Output, EventEmitter } from '@angular/core';
+import { Component, Directive, Input, Inject, forwardRef, Output, EventEmitter, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Categorie, ICategorieDB } from '../data/categorie.model';
+import { Categorie } from '../data/categorie.model';
 
 @Component({
     selector: 'app-select-categorie',
-    templateUrl: './select-categorie.component.html'
+    templateUrl: './select-categorie.component.html',
+    styleUrls: ['./select-categorie.component.css']
 })
 export class SelectCategorieComponent {
 
-    @Input() value: Categorie;
-    @Output() valueChange: EventEmitter<Categorie>
+    @Input() value: Categorie[];
+    @Input() readonly: boolean = false;
+    @Output() change: EventEmitter<Categorie[]>
 
+    imgClass: string[] = [];
+    selectedCategorieen: number[] = [];
     categorieen: Categorie[];
 
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-        this.valueChange = new EventEmitter<Categorie>();
+        this.change = new EventEmitter<Categorie[]>();
 
         http.get<Categorie[]>(baseUrl + 'api/Data/Categorieen').pipe(
             map(data => {
@@ -24,25 +28,48 @@ export class SelectCategorieComponent {
             })
         )
         .subscribe(result => {
+            if (!this.readonly && this.value) {
+                this.selectedCategorieen = [];
+                for (const v of this.value) {
+                    this.selectedCategorieen.push(v.categorieID);
+                }
+            }
+            
             this.categorieen = result;
+            for (const c of this.categorieen) {
+                if (-1 != this.selectedCategorieen.indexOf(c.categorieID)) {
+                    this.imgClass.push("img-fluid border");
+                } else {
+                    this.imgClass.push("img-fluid no-border");
+                }
+            }
         }, error => console.error(error));
     }
 
-    changeSelect(index: number, event): void {
-        this.value = this.categorieen[index];
-        this.valueChange.emit(this.value);
+    ngOnInit(): void {
+        if (!this.readonly && this.value) {
+            this.selectedCategorieen = [];
+            for (const v of this.value) {
+                this.selectedCategorieen.push(v.categorieID);
+            }
+        }
     }
 
-    changeInput(naam: string, event): void {
-        this.value = new Categorie(null);
-        this.value.categorieID = 0;
-        this.value.naam = naam;
-        this.categorieen.forEach(c => {
-            if (c.naam === naam) {
-                this.value = c;
+    toggleCategorie(index: number): void {
+        if (!this.readonly) {
+            let indexInValue = this.selectedCategorieen.indexOf(this.categorieen[index].categorieID);
+            if (-1 != indexInValue) {
+                this.value.splice(indexInValue, 1);
+                this.selectedCategorieen.splice(indexInValue, 1);
+                this.imgClass[index] = "img-fluid no-border";
+            } else {
+                this.value.push(this.categorieen[index]);
+                this.selectedCategorieen.push(this.categorieen[index].categorieID);
+                this.imgClass[index] = "img-fluid border";
             }
-        });
-        this.valueChange.emit(this.value);
+
+            this.change.emit(this.value);
+        }
     }
 }
 
@@ -55,20 +82,20 @@ export class SelectCategorieComponent {
     }]
 })
 export class CategorieValueAccessor implements ControlValueAccessor {
-    public value: number;
-    public get categorie(): number { return this.value }
-    public set categorie(v: number) {
-      if (v !== this.value) {     
-        this.value = v;
-        this.onChange(v);
-      }
+    public value: Categorie[];
+    public get ngModel(): Categorie[] { return this.value }
+    public set ngModel(v: Categorie[]) {
+        if (v !== this.value) {     
+            this.value = v;
+            this.onChange(v);
+        }
     }
 
     onChange: (_: any) => void = (_) => { };
     onTouched: () => void = () => { };
 
-    writeValue(value: number): void {
-        this.categorie = value;
+    writeValue(value: Categorie[]): void {
+        this.ngModel = value;
     }
 
     registerOnChange(fn: (_: any) => void): void {

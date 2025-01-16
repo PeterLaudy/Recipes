@@ -1,4 +1,12 @@
 ul,li {
     padding-left: 0px !important;
     list-style-type: none !important;
+    font-size: medium;
 }
+
+img.small-icons {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+

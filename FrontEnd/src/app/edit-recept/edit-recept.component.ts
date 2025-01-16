@@ -74,12 +74,13 @@ export class EditReceptComponent implements AfterViewInit {
         });
         console.log(`${this.value.gerecht.minutes} minuten`);
         console.log(`${this.value.gerecht.description}`);
-
+/*
         var recept: Recept = new Recept(null);
         recept.gerecht = this.value.gerecht;
+        recept.categorieen = this.value.categorieen;
         recept.hoeveelheden = this.value.hoeveelheden;
-
-        this.http.post<string>(this.baseUrl + 'api/Data/AddRecept', new ReceptDB(recept))
+*/
+        this.http.post<string>(this.baseUrl + 'api/Data/AddRecept', new ReceptDB(this.value))
         .subscribe(result => {
             if (result != 'OK') {
                 console.log(result);
