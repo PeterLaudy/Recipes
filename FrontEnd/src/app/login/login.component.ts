@@ -1,4 +1,4 @@
-import { Component, ViewChildren, Inject } from '@angular/core';
+import { Component, ViewChildren, Inject, AfterViewInit } from '@angular/core';
 import { LoginData } from '../data/login.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
     selector: 'app-login',
     templateUrl: './login.component.html'
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
 
     @ViewChildren('name') naamInput;
 

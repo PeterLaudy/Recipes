@@ -47,8 +47,8 @@ export class SelectEmailComponent {
 })
 export class EmailValueAccessor implements ControlValueAccessor {
     public value: string;
-    public get email(): string { return this.value }
-    public set email(v: string) {
+    public get ngModel(): string { return this.value }
+    public set ngModel(v: string) {
       if (v !== this.value) {     
         this.value = v;
         this.onChange(v);
@@ -59,7 +59,7 @@ export class EmailValueAccessor implements ControlValueAccessor {
     onTouched: () => void = () => { };
 
     writeValue(value: string): void {
-        this.email = value;
+        this.ngModel = value;
     }
 
     registerOnChange(fn: (_: any) => void): void {

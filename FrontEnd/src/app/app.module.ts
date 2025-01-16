@@ -18,7 +18,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterUserComponent } from './register-user/register-user.component';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
-import { CategorieValueAccessor, SelectCategorieComponent } from './select-categorie/select-categorie.component';
+import { SelectCategorieComponent, CategorieValueAccessor } from './select-categorie/select-categorie.component';
 import { SelectEmailComponent, EmailValueAccessor } from './select-email/select-email.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EditHoeveelhedenComponent, HoeveelhedenValueAccessor } from './edit-hoeveelheden/edit-hoeveelheden.component';

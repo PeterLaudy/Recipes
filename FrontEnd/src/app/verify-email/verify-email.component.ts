@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { VerifyEmailData } from '../data/verify-email.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
