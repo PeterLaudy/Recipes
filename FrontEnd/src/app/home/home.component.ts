@@ -1,4 +1,4 @@
-import { Component, Inject, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { GerechtSummary } from '../data/gerecht.model';
 import { AuthService } from '../auth-guard/auth-service';

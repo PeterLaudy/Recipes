@@ -1,4 +1,4 @@
-import { Component, Input, Directive, forwardRef, EventEmitter, Output, Inject, ViewChildren } from '@angular/core';
+import { Component, Input, Directive, forwardRef, Inject, ViewChildren } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Categorie, CategorieDB } from '../data/categorie.model';
 import { map } from 'rxjs/operators';

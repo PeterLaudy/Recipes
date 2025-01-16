@@ -1,6 +1,5 @@
-import { Component, Directive, Input, Inject, forwardRef, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Inject, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
 @Component({
     selector: 'app-select-email',
@@ -34,44 +33,6 @@ export class SelectEmailComponent {
     changeInput(address: string, event): void {
         this.value = address;
         this.valueChange.emit(this.value);
-    }
-}
-
-@Directive({
-    selector: 'app-select-email',
-    providers: [{
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => SelectEmailComponent),
-        multi: true
-    }]
-})
-export class EmailValueAccessor implements ControlValueAccessor {
-    public value: string;
-    public get ngModel(): string { return this.value }
-    public set ngModel(v: string) {
-      if (v !== this.value) {     
-        this.value = v;
-        this.onChange(v);
-      }
-    }
-
-    onChange: (_: any) => void = (_) => { };
-    onTouched: () => void = () => { };
-
-    writeValue(value: string): void {
-        this.ngModel = value;
-    }
-
-    registerOnChange(fn: (_: any) => void): void {
-        this.onChange = fn;
-    }
-
-    registerOnTouched(fn: () => void): void {
-        this.onTouched = fn;
-    }
-
-    setDisabledState?(isDisabled: boolean): void {
-        throw new Error("Method not implemented.");
     }
 }
 

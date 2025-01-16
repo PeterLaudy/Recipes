@@ -7,9 +7,9 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { SearchComponent } from './search/search.component';
 import { AddComponent } from './add/add.component';
-import { SelectEenheidComponent, EenheidValueAccessor } from './select-eenheid/select-eenheid.component';
-import { SelectIngredientComponent, IngredientValueAccessor } from './select-ingredient/select-ingredient.component';
-import { EditReceptComponent, ReceptValueAccessor } from './edit-recept/edit-recept.component';
+import { SelectEenheidComponent } from './select-eenheid/select-eenheid.component';
+import { SelectIngredientComponent } from './select-ingredient/select-ingredient.component';
+import { EditReceptComponent } from './edit-recept/edit-recept.component';
 import { EditComponent } from './edit/edit.component';
 import { ShowReceptComponent } from './show-recept/show-recept.component';
 import { ShowComponent } from './show/show.component';
@@ -18,11 +18,11 @@ import { LoginComponent } from './login/login.component';
 import { RegisterUserComponent } from './register-user/register-user.component';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
-import { SelectCategorieComponent, CategorieValueAccessor } from './select-categorie/select-categorie.component';
-import { SelectEmailComponent, EmailValueAccessor } from './select-email/select-email.component';
+import { SelectCategorieComponent } from './select-categorie/select-categorie.component';
+import { SelectEmailComponent } from './select-email/select-email.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { EditHoeveelhedenComponent, HoeveelhedenValueAccessor } from './edit-hoeveelheden/edit-hoeveelheden.component';
-import { EditHoeveelheidComponent, HoeveelheidValueAccessor } from './edit-hoeveelheid/edit-hoeveelheid.component';
+import { EditHoeveelhedenComponent } from './edit-hoeveelheden/edit-hoeveelheden.component';
+import { EditHoeveelheidComponent } from './edit-hoeveelheid/edit-hoeveelheid.component';
 import { AuthenticationInterceptor } from './interceptor';
 import { EditCategorieenComponent } from './edit-categorieen/edit-categorieen.component';
 
@@ -47,14 +47,7 @@ import { EditCategorieenComponent } from './edit-categorieen/edit-categorieen.co
         LoginComponent,
         RegisterUserComponent,
         VerifyEmailComponent,
-        ChangePasswordComponent,
-        EenheidValueAccessor,
-        IngredientValueAccessor,
-        HoeveelhedenValueAccessor,
-        HoeveelheidValueAccessor,
-        CategorieValueAccessor,
-        EmailValueAccessor,
-        ReceptValueAccessor
+        ChangePasswordComponent
     ],
     imports: [
         HttpClientModule,

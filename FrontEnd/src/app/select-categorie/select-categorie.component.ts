@@ -1,7 +1,6 @@
-import { Component, Directive, Input, Inject, forwardRef, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Inject, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Categorie } from '../data/categorie.model';
 
 @Component({
@@ -70,43 +69,5 @@ export class SelectCategorieComponent {
 
             this.change.emit(this.value);
         }
-    }
-}
-
-@Directive({
-    selector: 'app-select-categorie',
-    providers: [{
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => SelectCategorieComponent),
-        multi: true
-    }]
-})
-export class CategorieValueAccessor implements ControlValueAccessor {
-    public value: Categorie[];
-    public get ngModel(): Categorie[] { return this.value }
-    public set ngModel(v: Categorie[]) {
-        if (v !== this.value) {     
-            this.value = v;
-            this.onChange(v);
-        }
-    }
-
-    onChange: (_: any) => void = (_) => { };
-    onTouched: () => void = () => { };
-
-    writeValue(value: Categorie[]): void {
-        this.ngModel = value;
-    }
-
-    registerOnChange(fn: (_: any) => void): void {
-        this.onChange = fn;
-    }
-
-    registerOnTouched(fn: () => void): void {
-        this.onTouched = fn;
-    }
-
-    setDisabledState?(isDisabled: boolean): void {
-        throw new Error("Method not implemented.");
     }
 }
