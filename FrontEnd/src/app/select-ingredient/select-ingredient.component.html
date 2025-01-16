@@ -6,7 +6,7 @@
     </select>
   </div>
   <div *ngIf="!readonly">
-    <input class="form-control no-padding" placeholder="Ingredient?" list="iList" #inputIngredient [(value)]="value.name"
+    <input class="form-control no-padding" placeholder="Ingredient?" list="iList" #inputIngredient [(ngModel)]="value.name"
            (change)="changeInput(inputIngredient.value, $event)" (keyup)="changeInput(inputIngredient.value, $event)">
     <datalist id="iList">
       <option *ngFor="let ingredient of ingredienten" [value]="ingredient.name"></option>

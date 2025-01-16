@@ -8,9 +8,9 @@
     <input class="form-control no-padding" type="number" min="0" max="1000" placeholder="Aantal?" #qty [(ngModel)]="value.aantal" />
   </div>
   <div class="col-xs-3 no-padding">
-    <app-select-eenheid [(value)]="value.Eenheid" [eenheden]="cachedLists.Eenheden"></app-select-eenheid>
+    <app-select-eenheid *ngIf="cachedLists" [value]="value.Eenheid" [eenheden]="cachedLists.Eenheden"></app-select-eenheid>
   </div>
   <div class="col-xs-6 no-padding">
-    <app-select-ingredient [(value)]="value.Ingredient" [ingredienten]="cachedLists.Ingredienten" ></app-select-ingredient>
+    <app-select-ingredient *ngIf="cachedLists" [value]="value.Ingredient" [ingredienten]="cachedLists.Ingredienten" ></app-select-ingredient>
   </div>
 </div>

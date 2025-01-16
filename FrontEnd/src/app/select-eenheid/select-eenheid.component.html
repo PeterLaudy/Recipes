@@ -1,15 +1,15 @@
-<div *ngIf="eenheden">
+<div *ngIf="eenheden && value">
   <div *ngIf="readonly">
-    <select class="form-control no-padding" placeholder="Eenheid?" #selectEenheid [(value)]="value.index"
+    <select class="form-control no-padding" placeholder="Eenheid?" #selectEenheid [value]="value.index"
             (change)="changeSelect(selectEenheid.value, $event)">
-      <option *ngFor="let eenheid of eenheden" [(value)]="eenheid.name"></option>
+      <option *ngFor="let eenheid of eenheden" [value]="eenheid.name"></option>
     </select>
   </div>
   <div *ngIf="!readonly">
-    <input class="form-control no-padding" placeholder="Eenheid?" list="eList" #inputEenheid [(value)]="value.name"
+    <input class="form-control no-padding" placeholder="Eenheid?" list="eList" #inputEenheid [(ngModel)]="value.name"
            (change)="changeInput(inputEenheid.value, $event)" (keyup)="changeInput(inputEenheid.value, $event)">
     <datalist id="eList">
-      <option *ngFor="let eenheid of eenheden" [(value)]="eenheid.name"></option>
+      <option *ngFor="let eenheid of eenheden" [value]="eenheid.name"></option>
     </datalist>
   </div>
 </div>
