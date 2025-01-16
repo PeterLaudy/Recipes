@@ -20,27 +20,27 @@ export class EditCategorieenComponent {
     disableSave: boolean = true;
 
     availableicons: string[] = [
-        "/assets/icons/brood.svg",
-        "/assets/icons/cocktail.svg",
-        "/assets/icons/fastfood.svg",
-        "/assets/icons/fruit.svg",
-        "/assets/icons/gebak.svg",
-        "/assets/icons/glutenfree.svg",
-        "/assets/icons/ijs.svg",
-        "/assets/icons/nagerecht.svg",
-        "/assets/icons/noodles.svg",
-        "/assets/icons/noten.svg",
-        "/assets/icons/oven.svg",
-        "/assets/icons/pizza.svg",
-        "/assets/icons/rund.svg",
-        "/assets/icons/varken.svg",
-        "/assets/icons/vegan.svg",
-        "/assets/icons/vis.svg",
-        "/assets/icons/vis2.svg",
-        "/assets/icons/quiche.svg",
-        "/assets/icons/drank.svg",
-        "/assets/icons/bbq.svg",
-        "/assets/icons/soep.svg"
+        "assets/icons/brood.svg",
+        "assets/icons/cocktail.svg",
+        "assets/icons/fastfood.svg",
+        "assets/icons/fruit.svg",
+        "assets/icons/gebak.svg",
+        "assets/icons/glutenfree.svg",
+        "assets/icons/ijs.svg",
+        "assets/icons/nagerecht.svg",
+        "assets/icons/noodles.svg",
+        "assets/icons/noten.svg",
+        "assets/icons/oven.svg",
+        "assets/icons/pizza.svg",
+        "assets/icons/rund.svg",
+        "assets/icons/varken.svg",
+        "assets/icons/vegan.svg",
+        "assets/icons/vis.svg",
+        "assets/icons/vis2.svg",
+        "assets/icons/quiche.svg",
+        "assets/icons/drank.svg",
+        "assets/icons/bbq.svg",
+        "assets/icons/soep.svg"
     ];
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) {
@@ -75,7 +75,7 @@ export class EditCategorieenComponent {
         if ("" != this.newCategorieName) {
             let newValue = new Categorie(null);
             newValue.naam = this.newCategorieName;
-            newValue.iconPath = this.availableicons[i];
+            newValue.iconPath = this.baseUrl + this.availableicons[i];
             this.value.push(newValue);
         }
  
