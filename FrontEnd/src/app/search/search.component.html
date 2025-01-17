@@ -7,7 +7,7 @@
         <span class="glyphicon glyphicon-minus-sign"></span>
       </button>
     </div>
-    <div class="col-sm-4 no-padding">
+    <div class="col-sm-4 no-padding" *ngIf="cachedLists">
       <!-- Because ingredient is a variable, we cannot assign [value] to it, because
            when assigning back, the variable no longer exists. Therefore we use Ingredienten[i] -->
       <app-select-ingredient readonly="true" [value]="Ingredienten[i]" [ingredienten]="cachedLists"></app-select-ingredient>
@@ -34,7 +34,9 @@
     <p *ngIf="Recepten.length == 0">No results found.</p>
     <ul *ngIf="Recepten">
       <li *ngFor="let recept of Recepten">
-        <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+        <span *ngIf="authenticated">
+          <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+        </span>
         <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>&nbsp;
         <span *ngFor="let categorie of recept.categorieen">
           <img class="small-icons" [src]="categorie.iconPath" />

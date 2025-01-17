@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { IIngredientDB, Ingredient, IngredientDB } from '../data/ingredient.model';
 import { GerechtSummary } from '../data/gerecht.model';
 import { map } from 'rxjs/operators';
+import { AuthService } from '../auth-guard/auth-service';
 
 @Component({
     selector: 'app-search-component',
@@ -14,8 +15,9 @@ export class SearchComponent {
     Ingredienten: Ingredient[] = [];
     Recepten: GerechtSummary[];
     cachedLists: Ingredient[];
+    authenticated: boolean = false;
 
-    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) {
+    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, authService: AuthService) {
 
         http.get<IIngredientDB[]>(baseUrl + 'api/Data/Ingredienten').pipe(
             map(data => {
@@ -34,6 +36,8 @@ export class SearchComponent {
             this.cachedLists = result;
             this.Ingredienten.push(this.cachedLists[0]);
         }, error => console.error(error));
+
+        authService.IsAuthenticated().then(isAuth => { this.authenticated = isAuth; });
     }
 
     addIngredient(): void {

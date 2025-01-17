@@ -1,6 +1,8 @@
-<div class="row" cdkDropList *ngIf="value">
-  <div class="col-xs-12" *ngFor="let hoeveelheid of value; let i = index" cdkDrag>
-    <app-edit-hoeveelheid *ngIf="cachedLists" [value]="value[i]" [cachedLists]="cachedLists" (deleted)="deleteHoeveelheid($event)"></app-edit-hoeveelheid>
+<div *ngIf="cachedLists">
+  <div class="row" cdkDropList *ngIf="value">
+    <div class="col-xs-12" *ngFor="let hoeveelheid of value; let i = index" cdkDrag>
+      <app-edit-hoeveelheid *ngIf="cachedLists" [value]="value[i]" [cachedLists]="cachedLists" (deleted)="deleteHoeveelheid($event)"></app-edit-hoeveelheid>
+    </div>
   </div>
 </div>
 <div *ngIf="value">
