@@ -28,22 +28,28 @@ export class HomeComponent {
     }
     
     categoriechanged(event): void {
-        // First check if any categorie is selected at all.
-        if (0 == this.categorieen.length) {
-            for (let i = 0; i < this.visible.length; i++) {
-                this.visible[i] = true;
-            }
-        } else {
-            for (let i = 0; i < this.categorieen.length; i++) {
-                for (let j = 0; j < this.recepten.length; j++) {
-                    this.visible[j] = false;
-                    if (this.recepten[j].categorieen.length != 0) {
-                        for (let k = 0; k < this.recepten[j].categorieen.length; k++) {
-                            if (this.recepten[j].categorieen[k].categorieID == this.categorieen[i].categorieID) {
-                                this.visible[j] = true;
+        // First show all.
+        for (let i = 0; i < this.visible.length; i++) {
+            this.visible[i] = true;
+        }
+
+        // If some categories are selected, we hide any
+        // recipe not being tagged with all categories.
+        if (0 != this.categorieen.length) {
+            for (let i = 0; i < this.recepten.length; i++) {
+                if (this.recepten[i].categorieen.length != 0) {
+                    for (let j = 0; j < this.categorieen.length; j++) {
+                        var found = false;
+                        for (let k = 0; k < this.recepten[i].categorieen.length; k++) {
+                            if (this.recepten[i].categorieen[k].categorieID == this.categorieen[j].categorieID) {
+                                found = true;
                             }
                         }
+                        // If the categorie is not found, we hide the recipe.
+                        this.visible[i] = this.visible[i] && found;
                     }
+                } else {
+                    this.visible[i] = false;
                 }
             }
         }

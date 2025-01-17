@@ -20,8 +20,11 @@ export class EditCategorieenComponent {
     disableSave: boolean = true;
 
     availableicons: string[] = [
+        "assets/icons/bbq.svg",
+        "assets/icons/blad.svg",
         "assets/icons/brood.svg",
         "assets/icons/cocktail.svg",
+        "assets/icons/drank.svg",
         "assets/icons/fastfood.svg",
         "assets/icons/fruit.svg",
         "assets/icons/gebak.svg",
@@ -32,15 +35,15 @@ export class EditCategorieenComponent {
         "assets/icons/noten.svg",
         "assets/icons/oven.svg",
         "assets/icons/pizza.svg",
+        "assets/icons/quiche.svg",
         "assets/icons/rund.svg",
+        "assets/icons/salade.svg",
+        "assets/icons/saus.svg",
+        "assets/icons/soep.svg",
         "assets/icons/varken.svg",
         "assets/icons/vegan.svg",
         "assets/icons/vis.svg",
-        "assets/icons/vis2.svg",
-        "assets/icons/quiche.svg",
-        "assets/icons/drank.svg",
-        "assets/icons/bbq.svg",
-        "assets/icons/soep.svg"
+        "assets/icons/vis2.svg"
     ];
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) {
