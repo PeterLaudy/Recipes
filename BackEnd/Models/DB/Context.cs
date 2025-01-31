@@ -10,9 +10,6 @@ namespace Recepten.Models.DB
     /// <summary>
     /// Database context for the application.
     /// </summary>
-    /// <remarks>
-    /// TODO: cache the Eenheden and Ingredienten tables, as they are hit often when editing a recipe.
-    /// </remarks>
     public class Context : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         private ILogger<Context> logger;

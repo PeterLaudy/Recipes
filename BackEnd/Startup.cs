@@ -261,12 +261,16 @@ namespace Recepten
                         newUser = userManager.FindByNameAsync(userName).Result;
                         userManager.AddToRolesAsync(newUser, [ApplicationRole.AdminRole, ApplicationRole.EditorRole]).Wait();
                     }
+                    else
+                    {
+                        CheckForFirstRegistration.FirstUserExists = false;
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// Create a user role for this appication if it does not yet exists.
+        /// Create a user role for this application if it does not yet exists.
         /// </summary>
         /// <remarks>
         /// No sense in making this async, as the caller method cannot be async.
