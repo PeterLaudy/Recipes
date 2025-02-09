@@ -27,7 +27,7 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.*" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.*" />
-    <PackageReference Include="MSBuild.StructuredLogger" Version="2.2.386" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="MSBuild.StructuredLogger" Version="2.2.386" Condition="'$(Configuration)' == 'Debug'" PrivateAssets="All"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -69,7 +69,7 @@
       <DistFiles Include=".\google-key-file.json" />
       <DistFiles Include=".\wwwroot\**"  />
       <DistFiles Include=".\MailTemplates\*.html" />
-      <DistFiles Include=".\Linux\**" />
+      <DistFiles Include=".\LinuxTools\**" />
 
       <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
         <RelativePath>%(DistFiles.Identity)</RelativePath>
