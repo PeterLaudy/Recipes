@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +16,7 @@ namespace Recepten
                         // When running this in a docker image, we want to be able
                         // to change the configuration without rebuilding the image.
                         // The file to use must be the first parameter on the command line.
-                        if (args.Length >= 1)
+                        if ((args.Length >= 1) && File.Exists(args[0]))
                         {
                             configBuilder.AddJsonFile(path: args[0], optional: true, reloadOnChange: false);
                         }
