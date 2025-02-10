@@ -94,9 +94,11 @@ cd /recipes
 /recipes/Recepten "${@}" &
 
 # ...and store its Process ID.
-SRV_PID=$?
+SRV_PID=$!
 
 echo "Received $SRV_PID as the PID of the server."
 
 echo 'Going to sleep'
+wait $SRV_PID
+wait $SRV_PID
 wait $SRV_PID
