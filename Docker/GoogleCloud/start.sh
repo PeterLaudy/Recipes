@@ -91,7 +91,7 @@ trap persistDataAfterSigTerm TERM
 # We start the server...
 echo 'Starting the server'
 cd /recipes
-/recipes/Recepten "${@}"
+/recipes/Recepten "${@}" &
 
 # ...and store its Process ID.
 SRV_PID=$?
