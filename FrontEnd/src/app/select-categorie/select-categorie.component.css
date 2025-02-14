@@ -1,20 +1,9 @@
-img {
-    padding: 2px;
-    margin: 2px;
+app-icon {
+    padding: 3px 7px;
+    margin: 3px;
 }
 
-img.no-border {
-    border: 2px solid transparent;
-}
-
-img.border {
-    border: 2px solid #000;
-}
-
-img.no-border > svg {
-    stroke: #888;
-}
-
-img.border > svg {
-    stroke: #000;
+div {
+  margin-bottom: 2px;
+  padding: 3px 0px;
 }

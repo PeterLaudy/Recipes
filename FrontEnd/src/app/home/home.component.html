@@ -6,7 +6,6 @@
   <div class="row" *ngIf="categorieen">
     <app-select-categorie [value]="categorieen" (change)="categoriechanged($event)"></app-select-categorie>
   </div>
-  <br/>
   <div class="row">
     <ul *ngIf="recepten">
       <li *ngFor="let recept of recepten; let i = index">
@@ -14,10 +13,9 @@
           <span *ngIf="authenticated">
             <a routerLink="/edit/{{recept.index}}"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
           </span>
-          <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>&nbsp;
-          <span *ngFor="let categorie of recept.categorieen">
-            <img class="small-icons" [src]="categorie.iconPath" />
-          </span>
+          <a routerLink="/show/{{recept.index}}">{{recept.name}}
+            <app-icon *ngFor="let categorie of recept.categorieen" [index]="categorie.iconIndex" [color]="'#337ab7'" [size]="'16px'"></app-icon>
+          </a>
         </span>
       </li>
     </ul>

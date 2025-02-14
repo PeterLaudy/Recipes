@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { GerechtSummary } from '../data/gerecht.model';
 import { AuthService } from '../auth-guard/auth-service';
 import { Categorie } from '../data/categorie.model';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
     selector: 'app-home',
@@ -15,8 +16,10 @@ export class HomeComponent {
     visible: boolean[] = [];
     authenticated: boolean = false;
 
+    maxIcon: number = IconComponent.MAX_ICON;
+
     constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, authService: AuthService) {
-        http.post<GerechtSummary[]>(baseUrl + 'api/Data/Recepten', { withCredentials: true }).subscribe(result => {
+        http.get<GerechtSummary[]>(baseUrl + 'api/Data/Recepten').subscribe(result => {
             this.recepten = result;
             for (const recept in this.recepten) {
                 this.visible.push(true);

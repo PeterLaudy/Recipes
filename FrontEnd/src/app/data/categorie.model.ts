@@ -1,19 +1,19 @@
 export interface ICategorieDB {
     CategorieID: number;
     Naam: string;
-    IconPath: string;
+    IconIndex: number;
 }
 
 export class CategorieDB implements ICategorieDB {
     constructor(categorie: Categorie) {
         this.CategorieID = categorie.categorieID;
         this.Naam = categorie.naam;
-        this.IconPath = categorie.iconPath;
+        this.IconIndex = categorie.iconIndex;
     }
 
     CategorieID: number;
     Naam: string;
-    IconPath: string;
+    IconIndex: number;
 }
 
 export class Categorie {
@@ -21,15 +21,15 @@ export class Categorie {
         if (record) {
             this.categorieID = record.CategorieID;
             this.naam = record.Naam;
-            this.iconPath = record.IconPath;
+            this.iconIndex = record.IconIndex;
         } else {
             this.categorieID = 0;
             this.naam = "";
-            this.iconPath = "";
+            this.iconIndex = -1;
         }
     }
 
     categorieID: number;
     naam: string;
-    iconPath: string;
+    iconIndex: number;
 }

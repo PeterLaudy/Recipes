@@ -1,3 +1,27 @@
-img {
-    padding: 12px !important;
+app-icon {
+  width: 24px;
+  height: 24px;
+}
+
+div.category {
+  margin-bottom: 20px;
+}
+
+app-icon.choice {
+  margin: 0px 12px;
+  padding: 18px 0px;
+  display: inline-block;
+}
+
+input {
+  margin: 20px 0px;
+}
+
+div.grid {
+  text-align: center;
+}
+
+button {
+  margin-top: 20px;
+  margin-left: 15px;
 }

@@ -1,21 +1,17 @@
 <h1>Gerecht Types</h1>
 
-<div class="row" *ngIf="value">
-  <div class="col-xs-3" *ngFor="let categorie of value; let i = index" cdkDrag>
-    <img class="img-fluid" [src]="categorie.iconPath" (click)="changeCategorie(i)" />{{categorie.naam}}
+<div class="row grid" *ngIf="value">
+  <div class="col-xs-3 category" *ngFor="let categorie of value; let i = index">
+    <app-icon [index]="categorie.iconIndex" (click)="changeCategorie(i)" /><br />{{categorie.naam}}
   </div>
 </div>
-<div>
-  <br/>
+<div class="row">
   <input class="col-xs-12" type="text" #categorie placeholder="Categorie naam" [(ngModel)]="newCategorieName" />
-  <br/>
-  <br/>
-  <span *ngFor="let iconPath of availableicons; let i = index">
-    <img class="img-fluid" [src]="availableicons[i]" (click)="addCategorie(i)" />
-  </span>
 </div>
-<div>
-<br/>
+<div class="row grid">
+  <app-icon class="choice" *ngFor="let item of [].constructor(maxIcon); let i = index" [index]="i" [color]="iconColor[i]" (click)="addCategorie(i)"></app-icon>
+</div>
+<div class="row">
   <button class="col-sm-3 btn btn-primary" [disabled]="true == disableSave" (click)="saveCategorieen()">
     <span class="glyphicon glyphicon-share-alt">&nbsp;</span>Bewaar
   </button>

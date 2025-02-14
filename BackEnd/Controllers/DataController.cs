@@ -224,21 +224,11 @@ namespace Recepten.Controllers
             return ResultOK();
         }
 
-        [HttpPost("[action]")]
-        public JsonResult Recepten([FromBody] List<int> categorieIDs)
+        [HttpGet("[action]")]
+        public JsonResult Recepten()
         {
-            var selectAll = (null == categorieIDs) || (0 == categorieIDs.Count);
-
             // First we get the recipes we need to return.
-            var gerechten = selectAll ?
-                // Return all Gerechten.
-                context.Gerechten.OrderBy(g => g.Naam).ToList() :
-                // Return only the Gerechten which have one of the given categorieIDs set
-                context.GerechtCategorieCombinaties
-                    .Where(combi => categorieIDs.Contains(combi.CategorieID))
-                    .Join(context.Gerechten, combi => combi.GerechtID, gerecht => gerecht.GerechtID, (combi, gerecht) => gerecht)
-                    .OrderBy(g => g.Naam)
-                    .ToList();
+            var gerechten = context.Gerechten.OrderBy(g => g.Naam).ToList();
 
             // Then we add the categorieen ID' to them.
             var temp = gerechten.GroupJoin(context.GerechtCategorieCombinaties,
@@ -421,7 +411,7 @@ namespace Recepten.Controllers
                     }
 
                     // ...In that case we change the name and icon for that categorie...
-                    cat.IconPath = c.IconPath;
+                    cat.IconIndex = c.IconIndex;
                     cat.Naam = c.Naam;
                     newCategories.Add(cat);
                 }
@@ -432,7 +422,7 @@ namespace Recepten.Controllers
                     {
                         CategorieID = 0,
                         Naam = c.Naam,
-                        IconPath = c.IconPath
+                        IconIndex = c.IconIndex
                     });
                 }
             });

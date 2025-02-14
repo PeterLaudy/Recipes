@@ -18,7 +18,7 @@ namespace Recepten.Models.DB
             : base(options)
         {
             this.logger = logger;
-            // This will use migrations to initialy create or update the database.
+            // This will use migrations to initially create or update the database.
             RelationalDatabaseFacadeExtensions.Migrate(Database);
         }
 

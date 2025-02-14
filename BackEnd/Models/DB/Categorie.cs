@@ -13,7 +13,7 @@ namespace Recepten.Models.DB
 
         [Required]
         [Display(Name = "Icon")]
-        public string IconPath { get; set; }
+        public int IconIndex { get; set; }
 
         internal void SaveToContext(Context context)
         {

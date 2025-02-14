@@ -25,6 +25,7 @@ import { EditHoeveelhedenComponent } from './edit-hoeveelheden/edit-hoeveelheden
 import { EditHoeveelheidComponent } from './edit-hoeveelheid/edit-hoeveelheid.component';
 import { AuthenticationInterceptor } from './interceptor';
 import { EditCategorieenComponent } from './edit-categorieen/edit-categorieen.component';
+import { IconComponent } from './icon/icon.component';
 
 @NgModule({
     declarations: [
@@ -42,6 +43,7 @@ import { EditCategorieenComponent } from './edit-categorieen/edit-categorieen.co
         EditHoeveelheidComponent,
         EditCategorieenComponent,
         EditComponent,
+        IconComponent,
         ShowReceptComponent,
         ShowComponent,
         LoginComponent,

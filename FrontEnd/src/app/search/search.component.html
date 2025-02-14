@@ -39,7 +39,7 @@
         </span>
         <a routerLink="/show/{{recept.index}}">{{recept.name}}</a>&nbsp;
         <span *ngFor="let categorie of recept.categorieen">
-          <img class="small-icons" [src]="categorie.iconPath" />
+          <img class="small-icons" [src]="categorie.iconIndex" />
         </span>
     </li>
     </ul>

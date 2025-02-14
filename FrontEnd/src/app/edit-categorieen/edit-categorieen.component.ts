@@ -1,54 +1,35 @@
-import { Component, Input, Directive, forwardRef, Inject, ViewChildren } from '@angular/core';
+import { Component, Input, Directive, forwardRef, Inject, ViewChildren, AfterViewInit } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Categorie, CategorieDB } from '../data/categorie.model';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { IconComponent } from '../icon/icon.component'
 
 @Component({
     selector: 'app-categorieen',
     templateUrl: './edit-categorieen.component.html',
     styleUrls: ['./edit-categorieen.component.css']
 })
-export class EditCategorieenComponent {
+export class EditCategorieenComponent implements AfterViewInit {
 
     @ViewChildren('categorie') naamInput;
 
     @Input() value: Categorie[] = [];
+    iconColor: string[] = [];
     newCategorieName: string = "";
     newIconName: string = "";
     disableSave: boolean = true;
+    selectedIndex: number = -1;
 
-    availableicons: string[] = [
-        "assets/icons/bbq.svg",
-        "assets/icons/blad.svg",
-        "assets/icons/brood.svg",
-        "assets/icons/cocktail.svg",
-        "assets/icons/drank.svg",
-        "assets/icons/fastfood.svg",
-        "assets/icons/fruit.svg",
-        "assets/icons/gebak.svg",
-        "assets/icons/glutenfree.svg",
-        "assets/icons/ijs.svg",
-        "assets/icons/nagerecht.svg",
-        "assets/icons/noodles.svg",
-        "assets/icons/noten.svg",
-        "assets/icons/oven.svg",
-        "assets/icons/pizza.svg",
-        "assets/icons/quiche.svg",
-        "assets/icons/rund.svg",
-        "assets/icons/salade.svg",
-        "assets/icons/saus.svg",
-        "assets/icons/soep.svg",
-        "assets/icons/varken.svg",
-        "assets/icons/vegan.svg",
-        "assets/icons/vis.svg",
-        "assets/icons/vis2.svg"
-    ];
+    maxIcon: number = IconComponent.MAX_ICON;
 
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) {
         // Get all the available values for the Categorien
         this.getDataFromServer();
+        for (let i = 0; i < IconComponent.MAX_ICON; i++) {
+            this.iconColor.push("#000000");
+        }
     }
 
     ngAfterViewInit(): void {
@@ -78,8 +59,14 @@ export class EditCategorieenComponent {
         if ("" != this.newCategorieName) {
             let newValue = new Categorie(null);
             newValue.naam = this.newCategorieName;
-            newValue.iconPath = this.baseUrl + this.availableicons[i];
+            newValue.iconIndex = i;
             this.value.push(newValue);
+            this.deselectIcons();
+        } else {
+            for (let index = 0; index < this.iconColor.length; index++) {
+                this.iconColor[index] = i == index ? "#000000" : "#C0C0C0";
+            }
+            this.selectedIndex = i;
         }
  
         this.newCategorieName = "";
@@ -87,16 +74,29 @@ export class EditCategorieenComponent {
     }
 
     changeCategorie(i: number): void {
-        if ("" == this.newCategorieName)
-        {
-            this.value.splice(i, 1);
-        }
-        else
-        {
+        if ("" == this.newCategorieName) {
+            if (-1 == this.selectedIndex) {
+                this.value.splice(i, 1);
+            } else {
+                this.value[i].iconIndex = this.selectedIndex;
+            }
+        } else {
             this.value[i].naam = this.newCategorieName;
+            if (-1 != this.selectedIndex) {
+                this.value[i].iconIndex = this.selectedIndex;
+            }
         }
+
         this.newCategorieName = "";
+        this.deselectIcons();
         this.focusEditElement();
+    }
+
+    deselectIcons() {
+        this.selectedIndex = -1;
+        for (let i = 0; i < this.iconColor.length; i++) {
+            this.iconColor[i] = "#000000";
+        }
     }
 
     saveCategorieen(): void {
