@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Recepten.Models.DB
 {
@@ -13,6 +14,9 @@ namespace Recepten.Models.DB
 
         [Required]
         public int CategorieID { get; set; }
+
+        [JsonIgnore]
+        public Gerecht Gerecht { get; set; }
 
         internal void SaveToContext(Context context)
         {

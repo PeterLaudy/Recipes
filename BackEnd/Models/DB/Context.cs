@@ -43,7 +43,7 @@ namespace Recepten.Models.DB
             modelBuilder.Entity<GerechtCategorieCombinatie>(b => {
                 b.ToTable("gerechtcategoriecombinatie");
                 b.HasKey(x => new { x.GerechtCategorieCombinatieID });
-                b.HasOne<Gerecht>().WithMany().HasForeignKey(x => x.GerechtID);
+                b.HasOne(x => x.Gerecht).WithMany().HasForeignKey(x => x.GerechtID);
                 b.HasOne<Categorie>().WithMany().HasForeignKey(x => x.CategorieID);
             });
             modelBuilder.Entity<Hoeveelheid>(b => {

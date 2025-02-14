@@ -102,7 +102,7 @@ namespace Recepten.Controllers
                 var gcc = huidigeCategorieen.FirstOrDefault(g => g.CategorieID == categorie.CategorieID);
                 if (null == gcc)
                 {
-                    new GerechtCategorieCombinatie(){ CategorieID = categorie.CategorieID, GerechtID = Gerecht.GerechtID }.SaveToContext(context);
+                    new GerechtCategorieCombinatie(){ CategorieID = categorie.CategorieID, Gerecht = this.Gerecht }.SaveToContext(context);
                 }
             }
 
@@ -117,7 +117,6 @@ namespace Recepten.Controllers
             foreach (var hoeveelheid in Hoeveelheden)
             {
                 hoeveelheid.Gerecht = Gerecht;
-                hoeveelheid.GerechtID = Gerecht.GerechtID;
 
                 if (0 == hoeveelheid.IngredientID)
                 {
