@@ -130,7 +130,7 @@ namespace Recepten.Controllers
         [Route("/api/isauthenticated")]
         public JsonResult IsAuthenticated()
         {
-            return Json(new { status = "OK", isAuthenticated = this.User.Identity.IsAuthenticated });
+            return Json(new { status = "OK", isAuthenticated = this.User.Identity.IsAuthenticated, isAdmin = this.User.IsInRole("ADMIN") });
         }
 
         [HttpPost]

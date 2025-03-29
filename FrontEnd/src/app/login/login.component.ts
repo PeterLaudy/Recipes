@@ -1,21 +1,28 @@
-import { Component, ViewChildren, Inject, AfterViewInit } from '@angular/core';
+import { Component, ViewChildren, Inject, AfterViewInit, OnInit } from '@angular/core';
 import { LoginData } from '../data/login.model';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html'
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements OnInit, AfterViewInit {
 
+    redirect: string;
     @ViewChildren('name') naamInput;
 
     userName: string = "";
     password: string = "";
     status: string = "";
 
-    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router) { }
+    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router, private route: ActivatedRoute) { }
+
+    ngOnInit(): void {
+        this.route.queryParams.subscribe(params => {
+            this.redirect = params['redirect'];
+          });
+    }
 
     ngAfterViewInit(): void {
         if (this.naamInput && this.naamInput.first) {
@@ -37,7 +44,7 @@ export class LoginComponent implements AfterViewInit {
             } else {
                 // TODO: Check if we have the editor role, before sending us to this page.
                 // For now it is OK, as every user has this role.
-                this.router.navigate(['/add']);
+                this.router.navigate([this.redirect]);
             }
         }, error => console.error(error));
     }

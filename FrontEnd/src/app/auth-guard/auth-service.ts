@@ -22,4 +22,19 @@ export class AuthService {
                 });
         });
     }
+
+    IsAdmin(): Promise<boolean> {
+        return new Promise<boolean>(resolve => {
+            this.http
+                .get(this.baseUrl + 'api/isauthenticated')
+                .pipe<boolean>(
+                    map((data: string) => {
+                        let result: any = data;
+                        return result.isAdmin;
+                    })
+                ).subscribe(result => {
+                    resolve(result);
+                });
+        });
+    }
 }

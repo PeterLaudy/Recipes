@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -473,6 +474,43 @@ namespace Recepten.Controllers
         public async Task<JsonResult> EmailAddresses()
         {
             return Json(await contactsServer.GetAllEmailAdressesAsync());
+        }
+
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme, Roles=ApplicationRole.AdminRole)]
+        [HttpGet("[action]")]
+        public JsonResult Cleanup()
+        {
+            var unusedEenheden = from e in context.Eenheden
+                        join h in context.Hoeveelheden
+                            on e.EenheidID equals h.EenheidID into grouping
+                        from h in grouping.DefaultIfEmpty()
+                        where h == null
+                        select e;
+
+            var unusedIngredienten = from i in context.Ingredienten
+                        join h in context.Hoeveelheden
+                            on i.IngredientID equals h.IngredientID into grouping
+                        from h in grouping.DefaultIfEmpty()
+                        where h == null
+                        select i;
+
+            var result = new List<string>();
+
+            if (unusedEenheden.Count() > 0)
+            {
+                context.Eenheden.RemoveRange(unusedEenheden);
+                result.AddRange(unusedEenheden.Select(e => e.Naam));
+            }
+
+            if (unusedIngredienten.Count() > 0)
+            {
+                context.Ingredienten.RemoveRange(unusedIngredienten);
+                result.AddRange(unusedIngredienten.Select(i => i.Naam));
+            }
+
+            context.SaveChanges();
+
+            return Json(new { status = "OK", removed = result });
         }
     }
 }
