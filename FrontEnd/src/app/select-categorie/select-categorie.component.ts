@@ -8,7 +8,7 @@ import { Categorie } from '../data/categorie.model';
     templateUrl: './select-categorie.component.html',
     styleUrls: ['./select-categorie.component.css']
 })
-export class SelectCategorieComponent implements AfterViewInit {
+export class SelectCategorieComponent {
 
     @Input() value: Categorie[];
     @Input() readonly: boolean = false;
@@ -43,10 +43,12 @@ export class SelectCategorieComponent implements AfterViewInit {
                     this.colors.push("#C0C0C0");
                 }
             }
+
+            this.showComponent();
         }, error => console.error(error));
     }
 
-    ngAfterViewInit(): void {
+    showComponent(): void {
         if (!this.readonly && this.value) {
             this.selectedCategorieen = [];
             for (const v of this.value) {

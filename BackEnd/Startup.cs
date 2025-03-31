@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -186,6 +185,7 @@ namespace Recepten
                 app.UseHttpsRedirection();
             }
 
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
@@ -217,6 +217,7 @@ namespace Recepten
 
             app.UseSpaStaticFiles();
 
+/*
             app.UseSpa(spa =>
             {
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
@@ -229,7 +230,7 @@ namespace Recepten
                     spa.UseAngularCliServer("start");
                 }
             });
-
+*/
             this.AddRoleIfNotExists(roleManager, ApplicationRole.AdminRole);
             this.AddRoleIfNotExists(roleManager, ApplicationRole.EditorRole);
             this.AddRoleIfNotExists(roleManager, ApplicationRole.EmailVerifiedRole);

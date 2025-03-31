@@ -26,13 +26,11 @@ import { EditHoeveelhedenComponent } from './edit-hoeveelheden/edit-hoeveelheden
 import { EditHoeveelheidComponent } from './edit-hoeveelheid/edit-hoeveelheid.component';
 import { AuthenticationInterceptor } from './interceptor';
 import { EditCategorieenComponent } from './edit-categorieen/edit-categorieen.component';
-import { AdminPageComponent } from './admin-page/admin-page.component';
 import { IconComponent } from './icon/icon.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        AdminPageComponent,
         NavMenuComponent,
         HomeComponent,
         SearchComponent,
@@ -69,8 +67,7 @@ import { IconComponent } from './icon/icon.component';
             { path: 'register-user', component: RegisterUserComponent, canActivate: [IsAdmin()] },
             { path: 'verify-email', component: VerifyEmailComponent },
             { path: 'change-password', component: ChangePasswordComponent },
-            { path: 'edit-categorieen', component: EditCategorieenComponent, canActivate: [IsAdmin()] },
-            { path: 'admin-page', component: AdminPageComponent, canActivate: [IsAdmin()] }
+            { path: 'edit-categorieen', component: EditCategorieenComponent, canActivate: [IsAdmin()] }
         ]),
         BrowserAnimationsModule
     ],
