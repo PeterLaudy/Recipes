@@ -9,7 +9,7 @@ fi
 if [ ]; then
   dotnet publish -c Release -r linux-arm64 --self-contained=false "-p:PublishSingleFile=true" ./Recepten.sln -v n
   if [ "$?" != "0" ]; then
-    echo "Build for Linux x64 failed"
+    echo "Build for Linux arm64 failed"
     exit 1
   fi
   echo "Linux arm64"
