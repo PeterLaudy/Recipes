@@ -25,12 +25,10 @@ namespace Recepten
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        public ILogger<Startup> Logger { get; }
 
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Logger = logger;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -77,12 +75,9 @@ namespace Recepten
                 switch (Configuration.GetValue("UsedDB", "SQLite"))
                 {
                     case "MySQL":
-                        Logger.LogInformation("Using MySQL database.");
                         options.UseMySql(Configuration.GetConnectionString("MySQL"), new MySqlServerVersion(new Version(5, 7, 33)));
                         break;
                     case "SQLite":
-                        Logger.LogInformation("Using SQLite database.");
-                        Logger.LogInformation(Configuration.GetConnectionString("SQLite"));
                         options.UseSqlite($"Data Source={Configuration.GetConnectionString("SQLite")}");
                         break;
                     default:
@@ -148,7 +143,6 @@ namespace Recepten
             services.AddSingleton<IMyEmailSender, EmailSender>();
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, MyAuthorizationMiddleware>();
             services.AddSingleton<AuthenticationService>();
-            services.AddScoped<CheckForFirstRegistration>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -158,7 +152,6 @@ namespace Recepten
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
             IConfiguration configuration,
-            ILogger<Startup> logger,
             Context context)
         {
             if (!string.IsNullOrEmpty(configuration.GetValue("PathBase", string.Empty)))

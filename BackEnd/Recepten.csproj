@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <IsPackable>false</IsPackable>
-    <SpaRoot>..\FrontEnd\</SpaRoot>
     <Nullable>disable</Nullable>
     <DefaultItemExcludes>$(DefaultItemExcludes)</DefaultItemExcludes>
 
@@ -18,76 +17,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.*" />
-    <PackageReference Include="Google.Apis.Gmail.v1" Version="1.68.0.3427" />
-    <PackageReference Include="Google.Apis.PeopleService.v1" Version="1.68.0.3359" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.*" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.*" />
-    <PackageReference Include="MSBuild.StructuredLogger" Version="2.2.386" Condition="'$(Configuration)' == 'Debug'" PrivateAssets="All"/>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.*" />
+    <PackageReference Include="Google.Apis.Gmail.v1" Version="1.*" />
+    <PackageReference Include="Google.Apis.PeopleService.v1" Version="1.*" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.*" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.*" />
+    <PackageReference Include="MSBuild.StructuredLogger" Version="2.2.386" Condition="'$(Configuration)' == 'Debug'" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Remove=".\appsettings.*.json" />
-    <Content Remove=".\*.Production.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Don't publish the SPA source files, but do show them in the project files list -->
-    <!-- Content Remove="$(SpaRoot)**" / -->
-    <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <Target Name="Copy-Settings" BeforeTargets="PrepareForBuild">
     <Copy SourceFiles=".\appsettings.$(Configuration).json" DestinationFiles=".\appsettings.json" />
     <Copy SourceFiles=".\google-key-file.Production.json" DestinationFiles=".\google-key-file.json" />
-  </Target>
-
-  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
-    <!-- Ensure Node.js is installed -->
-    <Exec Command="node --version" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-  </Target>
-
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --configuration production" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --configuration production" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
-
-    <!-- Include the newly-built files in the publish output -->
-    <ItemGroup>
-      <DistFiles Include=".\**" Exclude=".\**" />
-      <DistFiles Include=".\appsettings.json" />
-      <DistFiles Include=".\google-key-file.json" />
-      <DistFiles Include=".\wwwroot\**"  />
-      <DistFiles Include=".\MailTemplates\*.html" />
-      <DistFiles Include=".\LinuxTools\**" />
-
-      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-        <RelativePath>%(DistFiles.Identity)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </ResolvedFileToPublish>
-    </ItemGroup>
-  </Target>
-
-  <!-- Need to have this target twice, because combining the AfterTargets into one will not work,
-       as the Target will be executed after the first the build will execute.
-       This means the Publish will be build with the wrong google-key-file.
-       The solution is a bit dodgy, because it assumes that Publish is always a Release build
-       and a 'normal' build always a Debug build. But for me it works. -->
-  <Target Name="Build-Undo-Copy-Settings" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug' ">
-    <Exec Command="git checkout google-key-file.json" />
-  </Target>
-
-  <Target Name="Publish-Undo-Copy-Settings" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="git checkout google-key-file.json" />
   </Target>
 </Project>

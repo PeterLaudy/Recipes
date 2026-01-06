@@ -17,7 +17,7 @@ namespace Recepten.Services
             AuthorizationPolicy policy,
             PolicyAuthorizationResult authorizeResult)
         {
-            // If the authorization was not succesfull for an API call,
+            // If the authorization was not successful for an API call,
             // provide a 401 (unauthorized) response instead of the standard 302 (redirect) to the login page.
             if (!authorizeResult.Succeeded && context.Request.Path.StartsWithSegments("/api"))
             {

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+SERVER="recipes"
+EXECUTABLE="Recepten"
+
 # First we check if we have PID 1
 echo "Our PID is $$ (should be 1)"
 
@@ -8,10 +11,26 @@ echo "Our PID is $$ (should be 1)"
 # the volume where the data is persisted after it is done.
 echo 'Waiting for running container to stop'
 
+# Now we check  if there is a service up and running.
+# If so we will signal it to stop. The web-server has
+# a mechanism to stop using the web-interface.
+
+if [ -f /data/up-and-running.flag ]; then
+  echo 'Old server is running, sending a stop signal.'
+  # Get a challenge
+  challenge=$(/${SERVER}/httpget https://www.zestien3.nl/${SERVER}/admin/gettoken?purpose=shutdown)
+  # Get the key
+  key=$(grep TokenKey /${SERVER}/appsettings.json | sed "s/^.*:\s*//" | sed 's/,//' | sed 's/\r//')
+  # Calculate the response from the challenge and the key
+  response=$(($challenge^$key))
+  # Send the response to the server to stop it.
+  /${SERVER}/httpget "https://www.zestien3.nl/${SERVER}/admin/executetoken?purpose=shutdown&response=$response"
+fi
+
 # We check every second if the file is already removed. We do this
 # for max 30 seconds. Since the internal SECONDS counter is not
-# always install in a container, we build something ourselves.
-# Currently this does not work. It seems that one a file is present,
+# always installed in a container, we build something ourselves.
+# Currently this does not work. It seems that once a file is present,
 # we will not see it disappear if it is removed from the bucket.
 # That might have to do with the GCSFuse interface that is used.
 # If this changes in the future, we will be ready for it.
@@ -35,6 +54,9 @@ fi
 # problems in the next function if it is not yet known there.
 SRV_PID=0
 
+# This variable allows us to detect if the server crashed.
+SRV_EXIT=1
+
 # This is the SIGTERM handler
 # Everything that should be done before the container goes down
 # should be done in this function. If we return from the handler,
@@ -42,6 +64,8 @@ SRV_PID=0
 # done in this script from then one is not guaranteed to execute.
 # We have 10 seconds to execute all of this, which should be OK.
 persistDataAfterSigTerm() {
+
+  SRV_EXIT=0
 
   # Simple countdown counter which puts it's counter value in
   # the log every 250 msec. Just so you know if you're OK
@@ -62,7 +86,7 @@ persistDataAfterSigTerm() {
 
   # Here we do the actual persisting.
   echo 'Server stopped. Copying the local data to persistent storage'
-  \cp -f /localdata/recipes.db /data/
+  \cp -f /localdata/${SERVER}.db /data/
 
   # The next container to start will look for this file to be removed.
   # So we cannot remove it before we have persisted the data.
@@ -71,7 +95,11 @@ persistDataAfterSigTerm() {
 
   # We are done. This will make sure we exit the process before
   # the Kernel kills it because we return from the SIGTERM handler.
-  exit 0
+  # If the server stopped by itself, this is not called as a
+  # SIGTERM handler. So we don't want to exit the script yet.
+  if [ $SRV_PID -ne 0 ]; then
+    exit 0
+  fi
 }
 
 # Now we create the up-and-running.flag file to signal that another
@@ -81,7 +109,7 @@ touch /data/up-and-running.flag
 
 # We copy the database and any other stuff from the persistent storage.
 echo 'Copying the data from persistent storage to local drive'
-\cp /data/recipes.db /localdata/
+\cp /data/${SERVER}.db /localdata/
 
 SRV_PID=0
 # Here we already can install the SIGTERM handler.
@@ -90,8 +118,8 @@ trap persistDataAfterSigTerm TERM
 
 # We start the server...
 echo 'Starting the server'
-cd /recipes
-/recipes/Recepten "${@}" &
+cd /${SERVER}
+/${SERVER}/${EXECUTABLE} "${@}" &
 
 # ...and store its Process ID.
 SRV_PID=$!
@@ -102,3 +130,25 @@ echo 'Going to sleep'
 wait $SRV_PID
 wait $SRV_PID
 wait $SRV_PID
+
+# If the server has exited, SRV_EXIT will still be 1 as
+# it is set to 0 before we pass the SIGTERM on to our server.
+# So if it is 1, we need to call persistDataAfterSigTerm here.
+if [ $SRV_EXIT -eq 1 ]; then
+  echo "The server has exited"
+
+  # Disable the previously installed trap
+  trap - TERM
+
+  # Since the server already stopped, we only need to persist
+  # the database. We don't need to wait for the server to stop.
+  SRV_PID=0
+  persistDataAfterSigTerm
+
+  # Now we have no server active. The new server needs some time to startup.
+  # If we exit now, Google Cloud thinks it needs to start a new instance.
+  # So we need to wait until the new server is up and running.
+  # 10 seconds should be enough for the new server to spin up.
+  # If we wait longer, the container will be killed.
+  sleep 10
+fi

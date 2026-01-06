@@ -10,14 +10,24 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/BackEnd/bin/Debug/net8.0/Recepten.dll",
+            "program": "${workspaceFolder}/BackEnd/bin/Debug/net10.0/Recepten.dll",
             "args": [],
             "cwd": "${workspaceFolder}/BackEnd",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"                
+            "launchBrowser": {
+                "enabled": true,
+                "args": "http://localhost:8080",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start http://localhost:8080"
+                },
+                "osx": {
+                    "command": "open"
+                },
+                "linux": {
+                    "command": "xdg-open"
+                }
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"

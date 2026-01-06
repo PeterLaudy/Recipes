@@ -1,0 +1,73 @@
+name: Build, Push and Deploy Docker image
+
+on:
+  push:
+    branches: [ release ]
+
+  workflow_dispatch:
+    branches: [ release, test ]
+
+jobs:
+  push_to_registry:
+    name: Build, Push and Deploy Docker Image to Google Cloud
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22]
+        server-name: [recipes]
+        project-name: [Recepten]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v5
+
+      - name: Google Cloud Authenticate
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{secrets.GOOGLE_PROJECT_ID}}
+          credentials_json: ${{secrets.GOOGLE_SERVICE_ACCOUNT_KEY}}
+          service_account: ${{secrets.GOOGLE_SERVICE_ACCOUNT}}
+
+      - name: Install Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Create files from repo secrets.
+        run: |
+          echo "${{secrets.GOOGLE_EMAIL_KEY}}" | base64 -d > ./BackEnd/google-key-file.json
+          echo "${{secrets.APPSETTINGS}}" | base64 -d  > ./BackEnd/appsettings.json
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: FrontEnd/package-lock.json
+
+      - name: Build the ${{ matrix.project-name }} project
+        run: |
+          cd FrontEnd
+          dotnet build ./${{ matrix.project-name }}.proj
+          npm install
+          npm run compile:sass
+          npm run build -- --configuration production
+          cd ..
+          ./build.sh
+
+      - name: Build Docker image and Push it to Google Cloud Artifact Repository
+        env:
+          GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT_ID }}
+        run: |
+          gcloud auth configure-docker europe-west4-docker.pkg.dev
+          docker build -f ./Docker/Dockerfile -t europe-west4-docker.pkg.dev/zestien3-web-site/${{ matrix.server-name }}/${{ matrix.server-name }} .
+          docker push europe-west4-docker.pkg.dev/zestien3-web-site/${{ matrix.server-name }}/${{ matrix.server-name }}
+
+      - name: Deploy Docker image on Google Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          project_id: ${{secrets.GOOGLE_PROJECT_ID}}
+          service: ${{ matrix.server-name }}
+          region: europe-west4
+          image: europe-west4-docker.pkg.dev/zestien3-web-site/${{ matrix.server-name }}/${{ matrix.server-name }}:latest

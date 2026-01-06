@@ -8,6 +8,7 @@
     "build": "ng build --verbose",
     "build:ssr": "npm run build -- --app=ssr --output-hashing=media",
     "test": "ng test",
+    "compile:sass": "",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
