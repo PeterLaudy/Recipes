@@ -43,7 +43,7 @@ namespace Recepten.Controllers
 
         [HttpGet]
         public JsonResult ExecuteToken(string purpose, int response)
-        { /*
+        {
             var challenge = response ^ adminTokenKey;
             if (tokens.ContainsKey(challenge) && purpose == tokens[challenge])
             {
@@ -51,11 +51,11 @@ namespace Recepten.Controllers
                 switch (purpose.ToUpper())
                 {
                     case "SHUTDOWN":
-            */            _ = Program.Stop(); /*
+                        _ = Program.Stop();
                         break;
                 }
             }
-*/
+
             return ResultOK();
         }
     }
