@@ -7,11 +7,11 @@
 # Build docker image
 
 # Get the docker image containing the required dotnet core version.
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 
 # Install our project into the image.
 WORKDIR /recipes
-COPY ./BackEnd/bin/Release/net8.0/linux-x64/publish ./
+COPY ./BackEnd/bin/Release/net10.0/linux-x64/publish ./
 
 # Install the required shell scripts for startup and shutdown.
 WORKDIR /
