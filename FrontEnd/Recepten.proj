@@ -1,0 +1,5 @@
+<Project>
+  <Target Name="SetBasePath" BeforeTargets="build">
+    <XmlPoke XmlInputPath="./src/index.html" Value="/recipes/" Query="/html/head/base/@href" />
+  </Target>
+</Project>
